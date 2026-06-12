@@ -37,6 +37,7 @@ STATIC_FILES = {
     "/stats": ("index.html", "text/html; charset=utf-8"),
     "/admin": ("index.html", "text/html; charset=utf-8"),
     "/robots.txt": ("robots.txt", "text/plain; charset=utf-8"),
+    "/sitemap.xml": ("sitemap.xml", "application/xml; charset=utf-8"),
     "/style.css": ("style.css", "text/css; charset=utf-8"),
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
     "/favicon.svg": ("favicon.svg", "image/svg+xml"),

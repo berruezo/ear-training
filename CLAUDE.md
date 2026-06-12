@@ -79,10 +79,12 @@ Read this before making non-trivial changes so cold-start sessions don't have to
 
 - **Server — `main.py`.** Single file using Python's stdlib `http.server.ThreadingHTTPServer`. No framework. Handles static files, exercise audio generation, auth (cookie sessions + PBKDF2), per-user settings and stats, and an admin panel.
 - **Frontend — `static/`.** Vanilla JS SPA, no build step.
-  - `index.html` — every screen is a `<section class="view" id="view-X" hidden>`; the router shows one at a time.
+  - `index.html` — every screen is a `<section class="view" id="view-X" hidden>`; the router shows one at a time. Contains canonical/OG/Twitter Card meta tags, JSON-LD `WebApplication` structured data, and the theme-flash-prevention inline script.
   - `app.js` — routing, game state, audio playback, i18n strings (en + es), settings/stats sync, auth.
   - `style.css` — CSS-variable theming (`--bg`, `--text`, …) with light/dark variants on `[data-theme]`.
   - `vexflow.js` — bundled VexFlow. Don't modify.
+  - `robots.txt` — allows all crawlers; includes `Sitemap:` pointer to `/sitemap.xml`.
+  - `sitemap.xml` — lists the four indexable URLs: `/`, `/interval-recognition`, `/chord-recognition`, `/scale-recognition`. Served via `STATIC_FILES` in `main.py`.
 - **Audio.** Rendered server-side via `pyfluidsynth` against `TimGM6mb.sf2`. Central function: `render_notes_wav(midi_notes, note_duration_s, simultaneous=False)`.
 - **Storage.** `data/users.json` (gitignored). Holds PBKDF2 password hashes, per-user `settings`, and per-user `stats`.
 
