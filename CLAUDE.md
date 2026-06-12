@@ -84,7 +84,14 @@ Read this before making non-trivial changes so cold-start sessions don't have to
   - `style.css` — CSS-variable theming (`--bg`, `--text`, …) with light/dark variants on `[data-theme]`.
   - `vexflow.js` — bundled VexFlow. Don't modify.
   - `robots.txt` — allows all crawlers; includes `Sitemap:` pointer to `/sitemap.xml`.
-  - `sitemap.xml` — lists the four indexable URLs: `/`, `/interval-recognition`, `/chord-recognition`, `/scale-recognition`. Served via `STATIC_FILES` in `main.py`.
+  - `sitemap.xml` — lists all indexable URLs: canonical roots plus `?lang=en` and `?lang=es` variants for each page. Served via `STATIC_FILES` in `main.py`.
+
+## Multilingual SEO
+
+The site is fully translated (en + es). To signal this to search engines:
+- `index.html` carries `hreflang` link tags pointing at `/?lang=en` and `/?lang=es`, plus `og:locale` / `og:locale:alternate`.
+- `getInitialLang()` in `app.js` reads the `?lang=` URL query parameter first; if present it saves the value to `localStorage` and strips the param from the URL with `history.replaceState`. This means a Google result link like `https://ear-training.berruezo.es/?lang=es` lands in Spanish and then behaves like a normal navigation from that point on.
+- The sitemap lists both language variants of every indexable page so Googlebot discovers and crawls them.
 - **Audio.** Rendered server-side via `pyfluidsynth` against `TimGM6mb.sf2`. Central function: `render_notes_wav(midi_notes, note_duration_s, simultaneous=False)`.
 - **Storage.** `data/users.json` (gitignored). Holds PBKDF2 password hashes, per-user `settings`, and per-user `stats`.
 

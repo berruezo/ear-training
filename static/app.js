@@ -382,6 +382,14 @@ function applyLanguage(lang) {
 
 function getInitialLang() {
   try {
+    const param = new URLSearchParams(location.search).get('lang');
+    if (param && STRINGS[param]) {
+      localStorage.setItem(LANG_STORAGE_KEY, param);
+      const url = new URL(location.href);
+      url.searchParams.delete('lang');
+      history.replaceState(null, '', url.pathname + (url.search === '?' ? '' : url.search));
+      return param;
+    }
     const stored = localStorage.getItem(LANG_STORAGE_KEY);
     if (stored && STRINGS[stored]) return stored;
   } catch (e) {}
