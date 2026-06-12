@@ -19,6 +19,7 @@ SOUNDFONT = "/usr/share/sounds/sf2/TimGM6mb.sf2"
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
 HOST = os.environ.get("HOST", "127.0.0.1")
 PORT = int(os.environ.get("PORT", "8080"))
+HTTPS = os.environ.get("HTTPS", "0") == "1"
 
 STATIC_FILES = {
     "/": ("index.html", "text/html; charset=utf-8"),
@@ -35,6 +36,7 @@ STATIC_FILES = {
     "/account": ("index.html", "text/html; charset=utf-8"),
     "/stats": ("index.html", "text/html; charset=utf-8"),
     "/admin": ("index.html", "text/html; charset=utf-8"),
+    "/robots.txt": ("robots.txt", "text/plain; charset=utf-8"),
     "/style.css": ("style.css", "text/css; charset=utf-8"),
     "/app.js": ("app.js", "application/javascript; charset=utf-8"),
     "/favicon.svg": ("favicon.svg", "image/svg+xml"),
@@ -215,6 +217,8 @@ def rename_sessions(old_username: str, new_username: str) -> None:
 
 def make_session_cookie(token: str, max_age: int = SESSION_TTL_S) -> str:
     parts = [f"{SESSION_COOKIE}={token}", f"Max-Age={max_age}", "Path=/", "HttpOnly", "SameSite=Lax"]
+    if HTTPS:
+        parts.append("Secure")
     return "; ".join(parts)
 
 

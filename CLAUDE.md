@@ -171,4 +171,6 @@ pip install -r requirements.txt
 PORT=8080 python main.py
 ```
 
+Set `HTTPS=1` in production to add the `Secure` flag to session cookies. Omit it (or set it to `0`) for local HTTP development.
+
 Then `curl http://127.0.0.1:8080/exercise?mode=melodic&tempo=120` (etc.) to smoke-test endpoints, or open the browser at the root.
