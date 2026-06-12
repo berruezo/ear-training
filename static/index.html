@@ -185,21 +185,21 @@
 
       <div id="melodic-controls">
         <section class="field">
+          <span class="field-label" data-i18n="direction">Direction</span>
+          <div class="segmented" role="radiogroup" data-i18n-aria-label="direction" aria-label="Direction">
+            <label><input type="radio" name="direction" value="any" checked><span data-i18n="anyDirection">Any</span></label>
+            <label><input type="radio" name="direction" value="ascendent"><span data-i18n="ascendent">Ascendent</span></label>
+            <label><input type="radio" name="direction" value="descendent"><span data-i18n="descendent">Descendent</span></label>
+          </div>
+        </section>
+
+        <section class="field">
           <label class="field-label" for="tempo-number" data-i18n="tempo">Tempo</label>
           <div class="tempo-row">
             <button type="button" id="tempo-minus" class="tempo-step" data-i18n-aria-label="decreaseTempo" aria-label="Decrease tempo by 10">&minus;</button>
             <input type="number" id="tempo-number" min="30" max="400" value="120" inputmode="numeric">
             <button type="button" id="tempo-plus" class="tempo-step" data-i18n-aria-label="increaseTempo" aria-label="Increase tempo by 10">+</button>
             <span class="unit">BPM</span>
-          </div>
-        </section>
-
-        <section class="field">
-          <span class="field-label" data-i18n="direction">Direction</span>
-          <div class="segmented" role="radiogroup" data-i18n-aria-label="direction" aria-label="Direction">
-            <label><input type="radio" name="direction" value="any" checked><span data-i18n="anyDirection">Any</span></label>
-            <label><input type="radio" name="direction" value="ascendent"><span data-i18n="ascendent">Ascendent</span></label>
-            <label><input type="radio" name="direction" value="descendent"><span data-i18n="descendent">Descendent</span></label>
           </div>
         </section>
       </div>
@@ -411,22 +411,22 @@
       </section>
 
       <section class="field">
-        <label class="field-label" for="scale-tempo-number" data-i18n="tempo">Tempo</label>
-        <div class="tempo-row">
-          <button type="button" id="scale-tempo-minus" class="tempo-step" data-i18n-aria-label="decreaseTempo" aria-label="Decrease tempo by 10">&minus;</button>
-          <input type="number" id="scale-tempo-number" min="30" max="400" value="160" inputmode="numeric">
-          <button type="button" id="scale-tempo-plus" class="tempo-step" data-i18n-aria-label="increaseTempo" aria-label="Increase tempo by 10">+</button>
-          <span class="unit">BPM</span>
-        </div>
-      </section>
-
-      <section class="field">
         <span class="field-label" data-i18n="direction">Direction</span>
         <div class="segmented" role="radiogroup" data-i18n-aria-label="direction" aria-label="Direction">
           <label><input type="radio" name="scale-direction" value="any" checked><span data-i18n="anyDirection">Any</span></label>
           <label><input type="radio" name="scale-direction" value="ascendent"><span data-i18n="ascendent">Ascendent</span></label>
           <label><input type="radio" name="scale-direction" value="descendent"><span data-i18n="descendent">Descendent</span></label>
           <label><input type="radio" name="scale-direction" value="both"><span data-i18n="bothDirection">Both</span></label>
+        </div>
+      </section>
+
+      <section class="field">
+        <label class="field-label" for="scale-tempo-number" data-i18n="tempo">Tempo</label>
+        <div class="tempo-row">
+          <button type="button" id="scale-tempo-minus" class="tempo-step" data-i18n-aria-label="decreaseTempo" aria-label="Decrease tempo by 10">&minus;</button>
+          <input type="number" id="scale-tempo-number" min="30" max="400" value="160" inputmode="numeric">
+          <button type="button" id="scale-tempo-plus" class="tempo-step" data-i18n-aria-label="increaseTempo" aria-label="Increase tempo by 10">+</button>
+          <span class="unit">BPM</span>
         </div>
       </section>
 
