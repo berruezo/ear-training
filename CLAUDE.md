@@ -65,6 +65,12 @@ This rule is permanent. Doc updates are part of the change itself, not a separat
 
 ---
 
+## How to approach tasks
+
+**Consult this file before opening source files.** CLAUDE.md is written so a cold-start agent can understand the project's architecture, conventions, and patterns without reading the code. For any question about layout, structure, endpoints, frontend patterns, or conventions, derive the plan from the docs first. Only open source files for specifics the docs cannot provide — exact line numbers for edits, variable names not listed here, git remotes, and similar. Source inspection is confirmation, not first-time discovery.
+
+---
+
 # Project architecture
 
 Read this before making non-trivial changes so cold-start sessions don't have to reverse-engineer the codebase.
