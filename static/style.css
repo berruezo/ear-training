@@ -981,3 +981,23 @@ input[type="range"]:focus-visible { box-shadow: var(--focus-ring); }
   .scale-btn, .scale-toggle { min-height: 54px; font-size: 1rem; }
   #scale-tempo-number { font-size: 2rem; }
 }
+
+.site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.footer-link {
+  color: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+
+.footer-link:hover { color: var(--text); }
