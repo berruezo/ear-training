@@ -169,6 +169,8 @@ If any step is missed the app still partly works but breaks subtly — e.g. forg
 
 The app is publicly hosted at **<https://ear-training.berruezo.es>**. There is no CI/CD pipeline — a manual deploy step (out of scope for this repo) is needed after pushing changes. When verifying a change end-to-end, prefer the local server; treat the public URL as the canonical live reference.
 
+In production the app runs inside Docker (`docker-compose.yml` + `Dockerfile`). A separate Caddy instance acts as the HTTPS reverse proxy and terminates TLS. The two stacks share a Docker network: `docker-compose.yml` declares `caddy_default` as an external network and attaches the app service to it, so Caddy can reach the container by service name on port 8080. The Caddy stack is managed independently of this repo.
+
 ## Running locally for verification
 
 System deps (Debian/Ubuntu): `apt install libfluidsynth3 timgm6mb-soundfont`. Soundfont path is hardcoded to `/usr/share/sounds/sf2/TimGM6mb.sf2`.
