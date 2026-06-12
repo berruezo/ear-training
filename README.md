@@ -1,5 +1,7 @@
 # Ear Training
 
+**Live:** <https://ear-training.berruezo.es>
+
 A small web app for practising musical ear training. Three exercises, browser-based UI, audio synthesised server-side from a General-MIDI soundfont.
 
 ## Exercises

@@ -156,6 +156,10 @@ If any step is missed the app still partly works but breaks subtly — e.g. forg
 - **Admin** — username literally `"admin"` (constant `ADMIN_USERNAME`). Exempt from permanent lock. Sees `/admin` and `/debug` entries on the home view.
 - **Theme + language flash prevention** — the inline `<script>` in `index.html`'s `<head>` applies `data-theme` synchronously before CSS loads. Don't move it.
 
+## Production deployment
+
+The app is publicly hosted at **<https://ear-training.berruezo.es>**. There is no CI/CD pipeline — a manual deploy step (out of scope for this repo) is needed after pushing changes. When verifying a change end-to-end, prefer the local server; treat the public URL as the canonical live reference.
+
 ## Running locally for verification
 
 System deps (Debian/Ubuntu): `apt install libfluidsynth3 timgm6mb-soundfont`. Soundfont path is hardcoded to `/usr/share/sounds/sf2/TimGM6mb.sf2`.
