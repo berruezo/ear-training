@@ -23,3 +23,16 @@ This is a public repository. Anything committed here ends up readable by the ent
 5. **If there is the slightest doubt** — about whether a value is a secret, whether content is private, whether something is safe to be public, or whether a new file should even exist — STOP and ASK the user before committing or pushing. The user has explicitly asked for this. "I'll just be careful" is not an acceptable substitute for asking.
 
 This rule is permanent and applies to every interaction in this repo.
+
+## Commit / push policy
+
+This is an **AI-first project** — code changes are expected to come from the assistant, not from hand-editing. Every prompt that modifies a tracked file ends with an automatic commit AND push to `origin/main`. Do not ask the user for permission to commit or push — standing approval has been granted.
+
+- **One commit per prompt** by default. Bundle every change a prompt produced into a single commit. Split into multiple commits only when the work clearly covers unrelated topics.
+- **Subject line:** short, imperative description of user intent. **Body:** brief explanation of what changed and why. Always include the `Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>` trailer.
+- **Push immediately** after each commit, after re-confirming `gh auth status` lists `berruezo` as the active account.
+- **Reverts use new forward commits.** If the user asks to undo a prior change, create a new commit that reverses it and explain the reason in the message. Never `--amend` a pushed commit, never `push --force` to `main`.
+- **Prompts that don't modify tracked files** (questions, explanations, debugging sessions without edits, running the app) require no commit.
+- **This policy yields to the "What goes into the repo" rule above.** If a change might leak credentials or personal information, the "STOP and ASK" rule wins — do not auto-commit something that could be sensitive.
+
+This policy is permanent and implicit. The user does NOT have to say "commit and push" — that's the default for every code-modifying prompt.
