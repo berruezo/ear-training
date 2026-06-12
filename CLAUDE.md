@@ -37,6 +37,32 @@ This is an **AI-first project** — code changes are expected to come from the a
 
 This policy is permanent and implicit. The user does NOT have to say "commit and push" — that's the default for every code-modifying prompt.
 
+## Keeping documentation in sync
+
+The project relies on `CLAUDE.md` (and to a lesser extent `README.md`) so any fresh Claude session can pick up work without re-reading the whole codebase. Every prompt that modifies tracked files MUST end with a deliberate doc-sync check: **does this change introduce context that a future cold-start agent would need to know, and that isn't already in the docs?**
+
+If yes, update the docs **as part of the same commit** — not in a follow-up. The goal is that a cold-start agent reading the docs gains near-complete expertise about the project without needing to inspect the source. Source inspection should be confirmation, not first-time discovery.
+
+**Changes that typically require a doc update:**
+- New file, module, or significant function role.
+- New server endpoint or a change to an existing endpoint's contract (params, headers, response shape).
+- New frontend view, route, key state object, or convention.
+- New external dependency or system requirement.
+- New configuration option, setting, or environment variable.
+- New pattern or convention that future contributors are expected to follow.
+- New gotcha, edge case, or non-obvious constraint discovered while making the change.
+- Anything that adds or removes a step from the existing "Adding a new exercise" checklist.
+
+**Changes that typically do NOT require a doc update:**
+- Bug fix that preserves behavior shape and the public contract.
+- Pure refactor that preserves the existing API.
+- Adding tests that don't change what's being tested.
+- Internal helpers used by only one caller.
+
+Default toward updating. If a fact would have helped you on this prompt and isn't in the docs, that's a sign the docs are missing context — add it. The cost of an extra paragraph in `CLAUDE.md` is trivial compared to the cost of a future agent making the wrong assumption from incomplete docs.
+
+This rule is permanent. Doc updates are part of the change itself, not a separate task. The "no personal info" rule still applies — any doc update that might include sensitive information must pause for confirmation.
+
 ---
 
 # Project architecture
