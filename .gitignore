@@ -30,3 +30,22 @@ Thumbs.db
 # Logs and temp files
 *.log
 *.tmp
+
+# Credentials / secrets — defensive patterns. If any of these ever appear,
+# something is wrong; never override these to commit a file.
+.env
+.env.*
+*.env
+secrets/
+secrets.json
+credentials.json
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+id_rsa*
+id_dsa*
+id_ecdsa*
+id_ed25519*
