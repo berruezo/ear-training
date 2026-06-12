@@ -2101,4 +2101,9 @@ async function initAuth() {
 
 initAuth();
 
+fetch('/api/version').then(r => r.json()).then(j => {
+  const el = document.getElementById('app-version');
+  if (el) el.textContent = 'v' + j.version;
+}).catch(() => {});
+
 showRoute(window.location.pathname);

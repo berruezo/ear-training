@@ -37,6 +37,18 @@ This is an **AI-first project** — code changes are expected to come from the a
 
 This policy is permanent and implicit. The user does NOT have to say "commit and push" — that's the default for every code-modifying prompt.
 
+## Version management
+
+The app version lives in `VERSION` in `main.py` and is served at `/api/version`. The frontend (`app.js`) fetches it on load and displays it in the footer as `vX.Y.Z`.
+
+**The assistant manages version bumps automatically and transparently.** The user never needs to ask. On every code-modifying prompt, decide whether to bump and which part:
+
+- **Patch** (`0.x.PATCH`) — bug fix, copy/style tweak, minor internal improvement, SEO / meta-tag update. Most commits fall here.
+- **Minor** (`0.MINOR.0`) — new user-visible feature, new exercise, new page/view, new endpoint with meaningful functionality.
+- **Major** (`MAJOR.0.0`) — architectural overhaul, breaking change to the public API, complete redesign. Reserved until the project is considered stable (currently pre-1.0).
+
+The project is currently pre-1.0 (`0.x.x`), meaning the major digit stays 0 until the user explicitly declares the project stable/complete. When bumping, update `VERSION` in `main.py` as part of the same commit as the change. No need to inform the user unless they ask.
+
 ## Keeping documentation in sync
 
 The project relies on `CLAUDE.md` (and to a lesser extent `README.md`) so any fresh Claude session can pick up work without re-reading the whole codebase. Every prompt that modifies tracked files MUST end with a deliberate doc-sync check: **does this change introduce context that a future cold-start agent would need to know, and that isn't already in the docs?**

@@ -15,6 +15,8 @@ from urllib.parse import parse_qs, urlparse
 import fluidsynth
 import numpy as np
 
+VERSION = "0.1.0"
+
 SOUNDFONT = "/usr/share/sounds/sf2/TimGM6mb.sf2"
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
 HOST = os.environ.get("HOST", "127.0.0.1")
@@ -749,6 +751,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(data)
             return
+
+        if parsed.path == "/api/version":
+            return self._send_json(200, {"version": VERSION})
 
         if parsed.path == "/auth/me":
             return self._handle_me()
