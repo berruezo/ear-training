@@ -295,10 +295,11 @@ main {
   opacity: 0;
   pointer-events: none;
 }
-.segmented label span {
+.segmented label > span {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 5px;
   min-height: 38px;
   padding: 0 10px;
   border-radius: 8px;
@@ -309,7 +310,8 @@ main {
   user-select: none;
   transition: background 0.15s ease, color 0.15s ease;
 }
-.segmented label:hover span { color: var(--text); }
+.segmented label:hover > span { color: var(--text); }
+.mode-label-icon { flex-shrink: 0; display: block; }
 .segmented input[type="radio"]:checked + span {
   background: var(--card-bg);
   color: var(--text);
@@ -384,7 +386,7 @@ main {
   border-radius: var(--radius-sm);
   cursor: pointer;
   letter-spacing: 0.01em;
-  transition: transform 0.06s ease, opacity 0.15s ease, filter 0.15s ease;
+  transition: transform 0.06s ease, opacity 0.15s ease, filter 0.15s ease, background 0.2s ease;
 }
 .play-btn:hover:not(:disabled) { filter: brightness(1.05); }
 .play-btn:active:not(:disabled) { transform: translateY(1px); }
@@ -394,6 +396,9 @@ main {
   cursor: progress;
 }
 .play-btn svg { display: block; }
+.play-btn[data-mode="timed"]  { background: #d97706; color: #fff; }
+.play-btn[data-mode="streak"] { background: #dc2626; color: #fff; }
+.mode-icon { display: flex; align-items: center; }
 
 /* Melodic-only sub-panel: visually grouped under the Harmonic/Melodic toggle */
 #melodic-controls {
@@ -951,7 +956,7 @@ input[type="range"]:focus-visible { box-shadow: var(--focus-ring); }
 @media (max-width: 420px) {
   .card { padding: 22px 18px; gap: 18px; }
   .card-header h1 { font-size: 1.4rem; }
-  .segmented label span { font-size: 0.9rem; min-height: 40px; }
+  .segmented label > span { font-size: 0.9rem; min-height: 40px; }
   #tempo-number, #scale-tempo-number { font-size: 1.6rem; }
   .interval-grid { gap: 4px; }
   .guess-btn, .interval-toggle { font-size: 0.78rem; min-height: 42px; padding: 0 2px; }
@@ -973,7 +978,7 @@ input[type="range"]:focus-visible { box-shadow: var(--focus-ring); }
   .field { gap: 12px; }
   .field-label { font-size: 0.85rem; }
   .segmented { padding: 5px; gap: 5px; }
-  .segmented label span { min-height: 44px; font-size: 1rem; }
+  .segmented label > span { min-height: 44px; font-size: 1rem; }
   .tempo-row { gap: 14px; }
   .tempo-step { width: 2.75rem; height: 2.75rem; font-size: 1.5rem; }
   #tempo-number { font-size: 2rem; }

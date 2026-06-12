@@ -235,13 +235,14 @@
       <section class="field">
         <span class="field-label" data-i18n="playMode">Game mode</span>
         <div class="segmented" role="radiogroup" data-i18n-aria-label="playMode" aria-label="Game mode">
-          <label><input type="radio" name="play-mode" value="free" checked><span data-i18n="modeFree">Free</span></label>
-          <label><input type="radio" name="play-mode" value="timed"><span data-i18n="modeTimed">Timed</span></label>
-          <label><input type="radio" name="play-mode" value="streak"><span data-i18n="modeStreak">Streak</span></label>
+          <label><input type="radio" name="play-mode" value="free" checked><span><svg class="mode-label-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span data-i18n="modeFree">Free</span></span></label>
+          <label><input type="radio" name="play-mode" value="timed"><span><svg class="mode-label-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><span data-i18n="modeTimed">Timed</span></span></label>
+          <label><input type="radio" name="play-mode" value="streak"><span><svg class="mode-label-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span data-i18n="modeStreak">Streak</span></span></label>
         </div>
       </section>
 
-      <button id="start" class="play-btn" type="button" data-route="/interval-recognition/play">
+      <button id="start" class="play-btn" type="button" data-route="/interval-recognition/play" data-mode="free">
+        <span class="mode-icon" aria-hidden="true"></span>
         <span data-i18n="start">Start</span>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </button>
@@ -366,13 +367,14 @@
       <section class="field">
         <span class="field-label" data-i18n="playMode">Game mode</span>
         <div class="segmented" role="radiogroup" data-i18n-aria-label="playMode" aria-label="Game mode">
-          <label><input type="radio" name="chord-play-mode" value="free" checked><span data-i18n="modeFree">Free</span></label>
-          <label><input type="radio" name="chord-play-mode" value="timed"><span data-i18n="modeTimed">Timed</span></label>
-          <label><input type="radio" name="chord-play-mode" value="streak"><span data-i18n="modeStreak">Streak</span></label>
+          <label><input type="radio" name="chord-play-mode" value="free" checked><span><svg class="mode-label-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span data-i18n="modeFree">Free</span></span></label>
+          <label><input type="radio" name="chord-play-mode" value="timed"><span><svg class="mode-label-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><span data-i18n="modeTimed">Timed</span></span></label>
+          <label><input type="radio" name="chord-play-mode" value="streak"><span><svg class="mode-label-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span data-i18n="modeStreak">Streak</span></span></label>
         </div>
       </section>
 
-      <button type="button" class="play-btn" data-route="/chord-recognition/play">
+      <button id="chord-start" type="button" class="play-btn" data-route="/chord-recognition/play" data-mode="free">
+        <span class="mode-icon" aria-hidden="true"></span>
         <span data-i18n="start">Start</span>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </button>
@@ -433,13 +435,14 @@
       <section class="field">
         <span class="field-label" data-i18n="playMode">Game mode</span>
         <div class="segmented" role="radiogroup" data-i18n-aria-label="playMode" aria-label="Game mode">
-          <label><input type="radio" name="scale-play-mode" value="free" checked><span data-i18n="modeFree">Free</span></label>
-          <label><input type="radio" name="scale-play-mode" value="timed"><span data-i18n="modeTimed">Timed</span></label>
-          <label><input type="radio" name="scale-play-mode" value="streak"><span data-i18n="modeStreak">Streak</span></label>
+          <label><input type="radio" name="scale-play-mode" value="free" checked><span><svg class="mode-label-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span data-i18n="modeFree">Free</span></span></label>
+          <label><input type="radio" name="scale-play-mode" value="timed"><span><svg class="mode-label-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><span data-i18n="modeTimed">Timed</span></span></label>
+          <label><input type="radio" name="scale-play-mode" value="streak"><span><svg class="mode-label-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span data-i18n="modeStreak">Streak</span></span></label>
         </div>
       </section>
 
-      <button type="button" class="play-btn" data-route="/scale-recognition/play">
+      <button id="scale-start" type="button" class="play-btn" data-route="/scale-recognition/play" data-mode="free">
+        <span class="mode-icon" aria-hidden="true"></span>
         <span data-i18n="start">Start</span>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </button>

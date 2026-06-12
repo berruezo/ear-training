@@ -416,6 +416,12 @@ document.querySelectorAll('input[name="theme"]').forEach(r => {
   r.addEventListener('change', () => applyTheme(r.value));
 });
 
+const MODE_ICONS = {
+  free:   '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+  timed:  '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>',
+  streak: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+};
+
 const ROUTES = {
   '/': 'view-home',
   '/interval-recognition': 'view-interval',
@@ -1794,6 +1800,23 @@ function applySettings(s) {
   } finally {
     suppressSettingsSave = false;
   }
+  syncAllModeButtons();
+}
+
+function syncModeButton(radioName, btnId) {
+  const checked = document.querySelector(`input[name="${radioName}"]:checked`);
+  const mode = checked ? checked.value : 'free';
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.dataset.mode = mode;
+  const iconEl = btn.querySelector('.mode-icon');
+  if (iconEl) iconEl.innerHTML = MODE_ICONS[mode] || '';
+}
+
+function syncAllModeButtons() {
+  syncModeButton('play-mode',       'start');
+  syncModeButton('chord-play-mode', 'chord-start');
+  syncModeButton('scale-play-mode', 'scale-start');
 }
 
 function scheduleSettingsSave() {
@@ -1833,6 +1856,12 @@ document.querySelectorAll('.scale-toggle').forEach(btn => {
 ].forEach(b => {
   if (b) b.addEventListener('click', () => setTimeout(scheduleSettingsSave, 0));
 });
+
+// Sync Start button icon/color when play-mode changes.
+document.querySelectorAll('input[name="play-mode"], input[name="chord-play-mode"], input[name="scale-play-mode"]').forEach(r => {
+  r.addEventListener('change', syncAllModeButtons);
+});
+syncAllModeButtons();
 
 // ---------- modal / login / register ---------------------------------
 
