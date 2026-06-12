@@ -54,3 +54,9 @@ data/users.json        Per-user data (auto-created, gitignored)
 Dockerfile             Container image
 docker-compose.yml     Compose service definition
 ```
+
+## License
+
+Released under the [MIT License](LICENSE) — © 2026 Álvaro Berruezo.
+
+The bundled `static/vexflow.js` is part of [VexFlow](https://github.com/vexflow/vexflow) and is distributed under its own MIT license; the original copyright notice is preserved at the top of the file.
