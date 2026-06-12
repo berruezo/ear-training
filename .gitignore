@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# User-data directory — contains password hashes / per-user settings
+data/
+
+# Local Claude Code settings
+.claude/
+
+# IDEs / editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs and temp files
+*.log
+*.tmp

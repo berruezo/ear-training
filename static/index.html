@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <title>Ear Training</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <script>
+    (function () {
+      try {
+        var s = localStorage.getItem('ear-training-theme');
+        var t = (s === 'light' || s === 'dark')
+          ? s
+          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button type="button" class="home-btn" data-route="/" data-i18n-aria-label="home" aria-label="Home">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1z"/></svg>
+      </button>
+      <div class="topbar-right">
+      <div class="segmented lang-switch" role="radiogroup" aria-label="Language">
+        <label data-i18n-aria-label="english" aria-label="English"><input type="radio" name="lang" value="en" checked><span aria-hidden="true">🇬🇧</span></label>
+        <label data-i18n-aria-label="spanish" aria-label="Spanish"><input type="radio" name="lang" value="es"><span aria-hidden="true">🇪🇸</span></label>
+      </div>
+      <div class="segmented theme-switch" role="radiogroup" data-i18n-aria-label="theme" aria-label="Theme">
+        <label data-i18n-aria-label="lightTheme" aria-label="Light theme">
+          <input type="radio" name="theme" value="light">
+          <span aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          </span>
+        </label>
+        <label data-i18n-aria-label="darkTheme" aria-label="Dark theme">
+          <input type="radio" name="theme" value="dark">
+          <span aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </span>
+        </label>
+      </div>
+      <div class="auth-wrapper">
+        <button type="button" class="home-btn" id="auth-btn" data-i18n-aria-label="account" aria-label="Account" aria-haspopup="menu" aria-expanded="false">
+          <svg class="auth-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 21c0-4.5 4-7 8-7s8 2.5 8 7"/>
+          </svg>
+          <span class="auth-initial" aria-hidden="true" hidden></span>
+        </button>
+        <div class="auth-menu" id="auth-menu" role="menu" hidden>
+          <div class="auth-menu-header" role="presentation">
+            <div class="auth-menu-avatar"><span id="auth-menu-initial"></span></div>
+            <div class="auth-menu-username" id="auth-menu-username"></div>
+          </div>
+          <div class="auth-menu-divider" role="separator"></div>
+          <button type="button" class="auth-menu-item" data-action="account" role="menuitem">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="8" r="4"/>
+              <path d="M4 21c0-4.5 4-7 8-7s8 2.5 8 7"/>
+            </svg>
+            <span data-i18n="account">Account</span>
+          </button>
+          <button type="button" class="auth-menu-item" data-action="stats" role="menuitem">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="4" y1="20" x2="4" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="20" y1="20" x2="20" y2="14"/>
+            </svg>
+            <span data-i18n="stats">Stats</span>
+          </button>
+          <div class="auth-menu-divider" role="separator"></div>
+          <button type="button" class="auth-menu-item danger" data-action="logout" role="menuitem">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            <span data-i18n="logout">Log out</span>
+          </button>
+        </div>
+      </div>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section class="card view" id="view-home">
+      <header class="card-header">
+        <h1 data-i18n="title">Ear Training</h1>
+        <p class="subtitle" data-i18n="homeSubtitle">Choose an exercise</p>
+      </header>
+
+      <nav class="exercise-list" aria-label="Exercises">
+        <a href="/interval-recognition" class="exercise-item" data-route="/interval-recognition">
+          <div class="exercise-text">
+            <h2 data-i18n="intervalName">Intervals</h2>
+            <p data-i18n="intervalDesc">Identify the interval between two notes</p>
+          </div>
+          <svg class="chevron" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg>
+        </a>
+        <a href="/chord-recognition" class="exercise-item" data-route="/chord-recognition">
+          <div class="exercise-text">
+            <h2 data-i18n="chordName">Chords</h2>
+            <p data-i18n="chordDesc">Identify the chord type</p>
+          </div>
+          <svg class="chevron" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg>
+        </a>
+        <a href="/scale-recognition" class="exercise-item" data-route="/scale-recognition">
+          <div class="exercise-text">
+            <h2 data-i18n="scaleName">Scales</h2>
+            <p data-i18n="scaleDesc">Identify the scale being played</p>
+          </div>
+          <svg class="chevron" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg>
+        </a>
+      </nav>
+
+      <button type="button" class="secondary-btn" id="admin-link" data-route="/admin" data-i18n="controlPanel" hidden>Control panel</button>
+      <button type="button" class="secondary-btn" id="debug-link" data-route="/debug" data-i18n="debug" hidden>Debug</button>
+    </section>
+
+    <section class="card view" id="view-interval" hidden>
+      <header class="card-header card-header-with-back">
+        <button type="button" class="back-btn" data-route="/" data-i18n-aria-label="back" aria-label="Back">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg>
+          <span data-i18n="back">Back</span>
+        </button>
+        <h1 data-i18n="intervalName">Intervals</h1>
+        <p class="subtitle" data-i18n="intervalDesc">Identify the interval between two notes</p>
+      </header>
+
+      <section class="field">
+        <span class="field-label" data-i18n="playMode">Game mode</span>
+        <div class="segmented" role="radiogroup" data-i18n-aria-label="playMode" aria-label="Game mode">
+          <label><input type="radio" name="play-mode" value="free" checked><span data-i18n="modeFree">Free</span></label>
+          <label><input type="radio" name="play-mode" value="timed"><span data-i18n="modeTimed">Timed</span></label>
+          <label><input type="radio" name="play-mode" value="streak"><span data-i18n="modeStreak">Streak</span></label>
+        </div>
+      </section>
+
+      <section class="field">
+        <span class="field-label" data-i18n="mode">Mode</span>
+        <div class="segmented" role="radiogroup" data-i18n-aria-label="mode" aria-label="Mode">
+          <label><input type="radio" name="mode" value="harmonic"><span data-i18n="harmonic">Harmonic</span></label>
+          <label><input type="radio" name="mode" value="melodic" checked><span data-i18n="melodic">Melodic</span></label>
+        </div>
+      </section>
+
+      <section class="field">
+        <span class="field-label" data-i18n="range">Range</span>
+        <div class="segmented" role="radiogroup" data-i18n-aria-label="range" aria-label="Range">
+          <label><input type="radio" name="range" value="any"><span data-i18n="anyRange">Any</span></label>
+          <label><input type="radio" name="range" value="octave" checked><span data-i18n="withinOctave">Within octave</span></label>
+          <label><input type="radio" name="range" value="beyond"><span data-i18n="beyondOctaveOnly">Beyond octave</span></label>
+        </div>
+      </section>
+
+      <section class="field">
+        <span class="field-label" data-i18n="allowedIntervals">Allowed intervals</span>
+        <div class="interval-grid interval-toggles">
+          <button type="button" class="interval-toggle" data-interval="1"  aria-pressed="true"  data-i18n-title="interval1Full"  title="Minor 2nd"><span data-i18n="interval1">m2</span></button>
+          <button type="button" class="interval-toggle" data-interval="3"  aria-pressed="true"  data-i18n-title="interval3Full"  title="Minor 3rd"><span data-i18n="interval3">m3</span></button>
+          <button type="button" class="interval-toggle" data-interval="6"  aria-pressed="true"  data-i18n-title="interval6Full"  title="Tritone"><span data-i18n="interval6">TT</span></button>
+          <button type="button" class="interval-toggle" data-interval="8"  aria-pressed="true"  data-i18n-title="interval8Full"  title="Minor 6th"><span data-i18n="interval8">m6</span></button>
+          <button type="button" class="interval-toggle" data-interval="10" aria-pressed="true"  data-i18n-title="interval10Full" title="Minor 7th"><span data-i18n="interval10">m7</span></button>
+          <button type="button" class="interval-toggle" data-interval="0"  aria-pressed="false" data-i18n-title="interval0Full"  title="Unison"><span data-i18n="interval0">Uni</span></button>
+          <button type="button" class="interval-toggle" data-interval="2"  aria-pressed="true"  data-i18n-title="interval2Full"  title="Major 2nd"><span data-i18n="interval2">M2</span></button>
+          <button type="button" class="interval-toggle" data-interval="4"  aria-pressed="true"  data-i18n-title="interval4Full"  title="Major 3rd"><span data-i18n="interval4">M3</span></button>
+          <button type="button" class="interval-toggle" data-interval="5"  aria-pressed="true"  data-i18n-title="interval5Full"  title="Perfect 4th"><span data-i18n="interval5">P4</span></button>
+          <button type="button" class="interval-toggle" data-interval="7"  aria-pressed="true"  data-i18n-title="interval7Full"  title="Perfect 5th"><span data-i18n="interval7">P5</span></button>
+          <button type="button" class="interval-toggle" data-interval="9"  aria-pressed="true"  data-i18n-title="interval9Full"  title="Major 6th"><span data-i18n="interval9">M6</span></button>
+          <button type="button" class="interval-toggle" data-interval="11" aria-pressed="true"  data-i18n-title="interval11Full" title="Major 7th"><span data-i18n="interval11">M7</span></button>
+          <button type="button" class="interval-toggle" data-interval="12" aria-pressed="true"  data-i18n-title="interval12Full" title="Perfect 8th"><span data-i18n="interval12">P8</span></button>
+        </div>
+      </section>
+
+      <div id="melodic-controls">
+        <section class="field">
+          <label class="field-label" for="tempo-number" data-i18n="tempo">Tempo</label>
+          <div class="tempo-row">
+            <button type="button" id="tempo-minus" class="tempo-step" data-i18n-aria-label="decreaseTempo" aria-label="Decrease tempo by 10">&minus;</button>
+            <input type="number" id="tempo-number" min="30" max="400" value="120" inputmode="numeric">
+            <button type="button" id="tempo-plus" class="tempo-step" data-i18n-aria-label="increaseTempo" aria-label="Increase tempo by 10">+</button>
+            <span class="unit">BPM</span>
+          </div>
+        </section>
+
+        <section class="field">
+          <span class="field-label" data-i18n="direction">Direction</span>
+          <div class="segmented" role="radiogroup" data-i18n-aria-label="direction" aria-label="Direction">
+            <label><input type="radio" name="direction" value="any" checked><span data-i18n="anyDirection">Any</span></label>
+            <label><input type="radio" name="direction" value="ascendent"><span data-i18n="ascendent">Ascendent</span></label>
+            <label><input type="radio" name="direction" value="descendent"><span data-i18n="descendent">Descendent</span></label>
+          </div>
+        </section>
+      </div>
+
+      <button id="start" class="play-btn" type="button" data-route="/interval-recognition/play">
+        <span data-i18n="start">Start</span>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </section>
+
+    <section class="card view" id="view-game" hidden>
+      <header class="card-header card-header-with-back">
+        <button type="button" class="back-btn" data-route="/interval-recognition" data-i18n-aria-label="back" aria-label="Back">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg>
+          <span data-i18n="back">Back</span>
+        </button>
+        <h1 id="game-title" data-i18n="intervalName">Intervals</h1>
+      </header>
+
+      <div id="game-timer" class="game-timer" hidden><span id="game-timer-value">0:00</span></div>
+
+      <div class="score" role="group" data-i18n-aria-label="score" aria-label="Score">
+        <div class="score-item score-correct" data-i18n-aria-label="correctCount" aria-label="Correct">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="5 12 10 17 19 7"/></svg>
+          <span id="score-correct" class="score-count">0</span>
+        </div>
+        <div class="score-item score-wrong" data-i18n-aria-label="wrongCount" aria-label="Wrong">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+          <span id="score-wrong" class="score-count">0</span>
+        </div>
+      </div>
+
+      <div class="game-controls">
+        <button type="button" id="game-prev" class="nav-btn" data-i18n-aria-label="previous" aria-label="Previous" disabled>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M6 6h2v12H6V6zm3.5 6l8.5 6V6l-8.5 6z"/></svg>
+        </button>
+        <button type="button" id="game-play" class="play-btn">
+          <svg viewBox="0 0 24 24" aria-hidden="true" width="22" height="22"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+          <span data-i18n="play">Play</span>
+        </button>
+        <button type="button" id="game-next" class="nav-btn" data-i18n-aria-label="next" aria-label="Next" disabled>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M16 6h2v12h-2V6zm-2 6L5.5 6v12L14 12z"/></svg>
+        </button>
+      </div>
+
+      <div class="guesses interval-grid" id="interval-answers">
+        <button type="button" class="guess-btn" data-interval="1"  data-i18n-title="interval1Full"  title="Minor 2nd"><span data-i18n="interval1">m2</span></button>
+        <button type="button" class="guess-btn" data-interval="3"  data-i18n-title="interval3Full"  title="Minor 3rd"><span data-i18n="interval3">m3</span></button>
+        <button type="button" class="guess-btn" data-interval="6"  data-i18n-title="interval6Full"  title="Tritone"><span data-i18n="interval6">TT</span></button>
+        <button type="button" class="guess-btn" data-interval="8"  data-i18n-title="interval8Full"  title="Minor 6th"><span data-i18n="interval8">m6</span></button>
+        <button type="button" class="guess-btn" data-interval="10" data-i18n-title="interval10Full" title="Minor 7th"><span data-i18n="interval10">m7</span></button>
+        <button type="button" class="guess-btn" data-interval="0"  data-i18n-title="interval0Full"  title="Unison"><span data-i18n="interval0">Uni</span></button>
+        <button type="button" class="guess-btn" data-interval="2"  data-i18n-title="interval2Full"  title="Major 2nd"><span data-i18n="interval2">M2</span></button>
+        <button type="button" class="guess-btn" data-interval="4"  data-i18n-title="interval4Full"  title="Major 3rd"><span data-i18n="interval4">M3</span></button>
+        <button type="button" class="guess-btn" data-interval="5"  data-i18n-title="interval5Full"  title="Perfect 4th"><span data-i18n="interval5">P4</span></button>
+        <button type="button" class="guess-btn" data-interval="7"  data-i18n-title="interval7Full"  title="Perfect 5th"><span data-i18n="interval7">P5</span></button>
+        <button type="button" class="guess-btn" data-interval="9"  data-i18n-title="interval9Full"  title="Major 6th"><span data-i18n="interval9">M6</span></button>
+        <button type="button" class="guess-btn" data-interval="11" data-i18n-title="interval11Full" title="Major 7th"><span data-i18n="interval11">M7</span></button>
+        <button type="button" class="guess-btn" data-interval="12" data-i18n-title="interval12Full" title="Perfect 8th"><span data-i18n="interval12">P8</span></button>
+      </div>
+
+      <div class="chord-grid" id="chord-answers" hidden>
+        <button type="button" class="chord-btn" data-chord="major"><span data-i18n="chordMajor">Major</span></button>
+        <button type="button" class="chord-btn" data-chord="minor"><span data-i18n="chordMinor">Minor</span></button>
+        <button type="button" class="chord-btn" data-chord="augmented"><span data-i18n="chordAugmented">Augmented</span></button>
+        <button type="button" class="chord-btn" data-chord="diminished"><span data-i18n="chordDiminished">Diminished</span></button>
+      </div>
+
+      <div class="scale-grid" id="scale-answers" hidden>
+        <button type="button" class="scale-btn" data-scale="major"><span data-i18n="scaleMajor">Major</span></button>
+        <button type="button" class="scale-btn" data-scale="natural_minor"><span data-i18n="scaleNaturalMinor">Natural minor</span></button>
+        <button type="button" class="scale-btn" data-scale="harmonic_minor"><span data-i18n="scaleHarmonicMinor">Harmonic minor</span></button>
+        <button type="button" class="scale-btn" data-scale="melodic_minor"><span data-i18n="scaleMelodicMinor">Melodic minor</span></button>
+        <button type="button" class="scale-btn" data-scale="dorian"><span data-i18n="scaleDorian">Dorian</span></button>
+        <button type="button" class="scale-btn" data-scale="phrygian"><span data-i18n="scalePhrygian">Phrygian</span></button>
+        <button type="button" class="scale-btn" data-scale="lydian"><span data-i18n="scaleLydian">Lydian</span></button>
+        <button type="button" class="scale-btn" data-scale="mixolydian"><span data-i18n="scaleMixolydian">Mixolydian</span></button>
+        <button type="button" class="scale-btn" data-scale="locrian"><span data-i18n="scaleLocrian">Locrian</span></button>
+        <button type="button" class="scale-btn" data-scale="major_pentatonic"><span data-i18n="scaleMajorPentatonic">Major pentatonic</span></button>
+        <button type="button" class="scale-btn" data-scale="minor_pentatonic"><span data-i18n="scaleMinorPentatonic">Minor pentatonic</span></button>
+        <button type="button" class="scale-btn" data-scale="blues"><span data-i18n="scaleBlues">Blues</span></button>
+        <button type="button" class="scale-btn" data-scale="chromatic"><span data-i18n="scaleChromatic">Chromatic</span></button>
+        <button type="button" class="scale-btn" data-scale="whole_tone"><span data-i18n="scaleWholeTone">Whole tone</span></button>
+        <button type="button" class="scale-btn" data-scale="diminished_wh"><span data-i18n="scaleDiminishedWH">Diminished (W-H)</span></button>
+        <button type="button" class="scale-btn" data-scale="diminished_hw"><span data-i18n="scaleDiminishedHW">Diminished (H-W)</span></button>
+      </div>
+
+      <div id="staff" class="staff" hidden></div>
+
+      <button type="button" id="game-finish" class="secondary-btn" data-route="/interval-recognition/results" data-i18n="finish">Finish</button>
+    </section>
+
+    <section class="card view" id="view-results" hidden>
+      <header class="card-header card-header-with-back">
+        <button type="button" class="back-btn" data-route="/interval-recognition" data-i18n-aria-label="back" aria-label="Back">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg>
+          <span data-i18n="back">Back</span>
+        </button>
+        <h1 data-i18n="results">Results</h1>
+      </header>
+      <div id="results-content"></div>
+    </section>
+
+    <section class="card view" id="view-stats" hidden>
+      <header class="card-header card-header-with-back">
+        <button type="button" class="back-btn" data-route="/" data-i18n-aria-label="back" aria-label="Back">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg>
+          <span data-i18n="back">Back</span>
+        </button>
+        <h1 data-i18n="stats">Stats</h1>
+        <p class="subtitle" data-i18n="statsSubtitle">Your progress over time</p>
+        <p class="subtitle" id="stats-member-since" hidden><span data-i18n="memberSince">Member since</span> <strong id="stats-created"></strong></p>
+      </header>
+      <div id="stats-content"></div>
+    </section>
+
+    <section class="card view" id="view-chord" hidden>
+      <header class="card-header card-header-with-back">
+        <button type="button" class="back-btn" data-route="/" data-i18n-aria-label="back" aria-label="Back">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg>
+          <span data-i18n="back">Back</span>
+        </button>
+        <h1 data-i18n="chordName">Chords</h1>
+        <p class="subtitle" data-i18n="chordDesc">Identify the chord type</p>
+      </header>
+
+      <section class="field">
+        <span class="field-label" data-i18n="playMode">Game mode</span>
+        <div class="segmented" role="radiogroup" data-i18n-aria-label="playMode" aria-label="Game mode">
+          <label><input type="radio" name="chord-play-mode" value="free" checked><span data-i18n="modeFree">Free</span></label>
+          <label><input type="radio" name="chord-play-mode" value="timed"><span data-i18n="modeTimed">Timed</span></label>
+          <label><input type="radio" name="chord-play-mode" value="streak"><span data-i18n="modeStreak">Streak</span></label>
+        </div>
+      </section>
+
+      <button type="button" class="play-btn" data-route="/chord-recognition/play">
+        <span data-i18n="start">Start</span>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </section>
+
+    <section class="card view" id="view-scale" hidden>
+      <header class="card-header card-header-with-back">
+        <button type="button" class="back-btn" data-route="/" data-i18n-aria-label="back" aria-label="Back">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg>
+          <span data-i18n="back">Back</span>
+        </button>
+        <h1 data-i18n="scaleName">Scales</h1>
+        <p class="subtitle" data-i18n="scaleDesc">Identify the scale being played</p>
+      </header>
+
+      <section class="field">
+        <span class="field-label" data-i18n="playMode">Game mode</span>
+        <div class="segmented" role="radiogroup" data-i18n-aria-label="playMode" aria-label="Game mode">
+          <label><input type="radio" name="scale-play-mode" value="free" checked><span data-i18n="modeFree">Free</span></label>
+          <label><input type="radio" name="scale-play-mode" value="timed"><span data-i18n="modeTimed">Timed</span></label>
+          <label><input type="radio" name="scale-play-mode" value="streak"><span data-i18n="modeStreak">Streak</span></label>
+        </div>
+      </section>
+
+      <section class="field">
+        <span class="field-label" data-i18n="allowedScales">Allowed scales</span>
+        <div class="scale-grid scale-toggles">
+          <button type="button" class="scale-toggle" data-scale="major"            aria-pressed="true"><span data-i18n="scaleMajor">Major</span></button>
+          <button type="button" class="scale-toggle" data-scale="natural_minor"    aria-pressed="true"><span data-i18n="scaleNaturalMinor">Natural minor</span></button>
+          <button type="button" class="scale-toggle" data-scale="harmonic_minor"   aria-pressed="true"><span data-i18n="scaleHarmonicMinor">Harmonic minor</span></button>
+          <button type="button" class="scale-toggle" data-scale="melodic_minor"    aria-pressed="true"><span data-i18n="scaleMelodicMinor">Melodic minor</span></button>
+          <button type="button" class="scale-toggle" data-scale="dorian"           aria-pressed="true"><span data-i18n="scaleDorian">Dorian</span></button>
+          <button type="button" class="scale-toggle" data-scale="phrygian"         aria-pressed="true"><span data-i18n="scalePhrygian">Phrygian</span></button>
+          <button type="button" class="scale-toggle" data-scale="lydian"           aria-pressed="true"><span data-i18n="scaleLydian">Lydian</span></button>
+          <button type="button" class="scale-toggle" data-scale="mixolydian"       aria-pressed="true"><span data-i18n="scaleMixolydian">Mixolydian</span></button>
+          <button type="button" class="scale-toggle" data-scale="locrian"          aria-pressed="true"><span data-i18n="scaleLocrian">Locrian</span></button>
+          <button type="button" class="scale-toggle" data-scale="major_pentatonic" aria-pressed="false"><span data-i18n="scaleMajorPentatonic">Major pentatonic</span></button>
+          <button type="button" class="scale-toggle" data-scale="minor_pentatonic" aria-pressed="false"><span data-i18n="scaleMinorPentatonic">Minor pentatonic</span></button>
+          <button type="button" class="scale-toggle" data-scale="blues"            aria-pressed="false"><span data-i18n="scaleBlues">Blues</span></button>
+          <button type="button" class="scale-toggle" data-scale="chromatic"        aria-pressed="false"><span data-i18n="scaleChromatic">Chromatic</span></button>
+          <button type="button" class="scale-toggle" data-scale="whole_tone"       aria-pressed="false"><span data-i18n="scaleWholeTone">Whole tone</span></button>
+          <button type="button" class="scale-toggle" data-scale="diminished_wh"    aria-pressed="false"><span data-i18n="scaleDiminishedWH">Diminished (W-H)</span></button>
+          <button type="button" class="scale-toggle" data-scale="diminished_hw"    aria-pressed="false"><span data-i18n="scaleDiminishedHW">Diminished (H-W)</span></button>
+        </div>
+      </section>
+
+      <section class="field">
+        <label class="field-label" for="scale-tempo-number" data-i18n="tempo">Tempo</label>
+        <div class="tempo-row">
+          <button type="button" id="scale-tempo-minus" class="tempo-step" data-i18n-aria-label="decreaseTempo" aria-label="Decrease tempo by 10">&minus;</button>
+          <input type="number" id="scale-tempo-number" min="30" max="400" value="160" inputmode="numeric">
+          <button type="button" id="scale-tempo-plus" class="tempo-step" data-i18n-aria-label="increaseTempo" aria-label="Increase tempo by 10">+</button>
+          <span class="unit">BPM</span>
+        </div>
+      </section>
+
+      <section class="field">
+        <span class="field-label" data-i18n="direction">Direction</span>
+        <div class="segmented" role="radiogroup" data-i18n-aria-label="direction" aria-label="Direction">
+          <label><input type="radio" name="scale-direction" value="any" checked><span data-i18n="anyDirection">Any</span></label>
+          <label><input type="radio" name="scale-direction" value="ascendent"><span data-i18n="ascendent">Ascendent</span></label>
+          <label><input type="radio" name="scale-direction" value="descendent"><span data-i18n="descendent">Descendent</span></label>
+          <label><input type="radio" name="scale-direction" value="both"><span data-i18n="bothDirection">Both</span></label>
+        </div>
+      </section>
+
+      <button type="button" class="play-btn" data-route="/scale-recognition/play">
+        <span data-i18n="start">Start</span>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </section>
+
+    <section class="card view" id="view-account" hidden>
+      <header class="card-header card-header-with-back">
+        <button type="button" class="back-btn" data-route="/" data-i18n-aria-label="back" aria-label="Back">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg>
+          <span data-i18n="back">Back</span>
+        </button>
+        <h1 data-i18n="account">Account</h1>
+        <p class="subtitle"><span data-i18n="loggedInAs">Logged in as</span> <strong id="account-username"></strong></p>
+      </header>
+
+      <section class="field">
+        <span class="field-label" data-i18n="changeUsername">Change username</span>
+        <form id="form-change-username" class="account-form" autocomplete="off">
+          <input type="text" name="newUsername" required minlength="3" maxlength="32" pattern="[a-zA-Z0-9_-]+" data-i18n-placeholder="newUsername" placeholder="New username">
+          <input type="password" name="currentPassword" required minlength="6" data-i18n-placeholder="currentPassword" placeholder="Current password" autocomplete="current-password">
+          <button type="submit" class="play-btn" data-i18n="save">Save</button>
+          <div class="form-message" hidden></div>
+        </form>
+      </section>
+
+      <section class="field">
+        <span class="field-label" data-i18n="changePassword">Change password</span>
+        <form id="form-change-password" class="account-form" autocomplete="off">
+          <input type="password" name="currentPassword" required minlength="6" data-i18n-placeholder="currentPassword" placeholder="Current password" autocomplete="current-password">
+          <input type="password" name="newPassword" required minlength="6" data-i18n-placeholder="newPassword" placeholder="New password" autocomplete="new-password">
+          <button type="submit" class="play-btn" data-i18n="save">Save</button>
+          <div class="form-message" hidden></div>
+        </form>
+      </section>
+
+      <section class="field danger-zone">
+        <span class="field-label danger-label" data-i18n="deleteAccount">Delete account</span>
+        <p class="danger-note" data-i18n="deleteWarning">This will permanently delete your account and all your saved settings.</p>
+        <form id="form-delete-account" class="account-form" autocomplete="off">
+          <input type="password" name="currentPassword" required minlength="6" data-i18n-placeholder="currentPassword" placeholder="Current password" autocomplete="current-password">
+          <button type="submit" class="danger-btn" data-i18n="deleteAccount">Delete account</button>
+          <div class="form-message" hidden></div>
+        </form>
+      </section>
+
+    </section>
+
+    <section class="card view" id="view-admin" hidden>
+      <header class="card-header card-header-with-back">
+        <button type="button" class="back-btn" data-route="/" data-i18n-aria-label="back" aria-label="Back">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg>
+          <span data-i18n="back">Back</span>
+        </button>
+        <h1 data-i18n="controlPanel">Control panel</h1>
+        <p class="subtitle" data-i18n="controlPanelSubtitle">Registered users</p>
+      </header>
+      <div id="admin-content"></div>
+    </section>
+
+    <section class="card view" id="view-debug" hidden>
+      <header class="card-header card-header-with-back">
+        <button type="button" class="back-btn" data-route="/" data-i18n-aria-label="back" aria-label="Back">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 6 9 12 15 18"/></svg>
+          <span data-i18n="back">Back</span>
+        </button>
+        <h1 data-i18n="debug">Debug</h1>
+        <p class="subtitle" data-i18n="debugDesc">Diagnostics and tests</p>
+      </header>
+
+      <button type="button" id="debug-lowest" class="play-btn" data-notes="lowest">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="22" height="22"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+        <span data-i18n="testLowestNote">Play lowest note</span>
+        <span id="lowest-note-suffix" class="note-suffix"></span>
+      </button>
+      <button type="button" id="debug-highest" class="play-btn" data-notes="highest">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="22" height="22"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+        <span data-i18n="testHighestNote">Play highest note</span>
+        <span id="highest-note-suffix" class="note-suffix"></span>
+      </button>
+
+      <section class="field">
+        <span class="field-label" data-i18n="customNote">Custom note</span>
+        <div class="note-display"><span id="note-name">C4</span></div>
+        <div class="note-row">
+          <button type="button" id="note-minus" class="tempo-step" data-i18n-aria-label="decreaseNote" aria-label="Lower note">&minus;</button>
+          <input type="range" id="note-slider" min="21" max="108" value="60" data-i18n-aria-label="customNote" aria-label="Custom note">
+          <button type="button" id="note-plus" class="tempo-step" data-i18n-aria-label="increaseNote" aria-label="Raise note">+</button>
+        </div>
+      </section>
+      <button type="button" id="debug-custom-play" class="play-btn" data-notes="60">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="22" height="22"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+        <span data-i18n="play">Play</span>
+      </button>
+    </section>
+  </main>
+
+  <div id="auth-modal" class="modal" hidden>
+    <div class="modal-overlay" data-modal-close></div>
+    <div class="modal-content" role="dialog" aria-modal="true" data-i18n-aria-label="account" aria-label="Account">
+      <button type="button" class="modal-close" data-modal-close aria-label="Close">&times;</button>
+      <div class="auth-tabs" role="tablist">
+        <button type="button" class="auth-tab active" data-auth-tab="login" data-i18n="login" role="tab">Log in</button>
+        <button type="button" class="auth-tab" data-auth-tab="register" data-i18n="register" role="tab">Register</button>
+      </div>
+      <form id="auth-form-login" class="auth-form active" autocomplete="on">
+        <input type="text" name="username" required minlength="3" maxlength="32" pattern="[a-zA-Z0-9_-]+" data-i18n-placeholder="username" placeholder="Username" autocomplete="username">
+        <input type="password" name="password" required minlength="6" data-i18n-placeholder="password" placeholder="Password" autocomplete="current-password">
+        <div class="form-message" hidden></div>
+        <button type="submit" class="play-btn" data-i18n="login">Log in</button>
+      </form>
+      <form id="auth-form-register" class="auth-form" autocomplete="on" hidden>
+        <input type="text" name="username" required minlength="3" maxlength="32" pattern="[a-zA-Z0-9_-]+" data-i18n-placeholder="username" placeholder="Username" autocomplete="username">
+        <input type="password" name="password" required minlength="6" data-i18n-placeholder="password" placeholder="Password" autocomplete="new-password">
+        <input type="password" name="confirmPassword" required minlength="6" data-i18n-placeholder="confirmPassword" placeholder="Confirm password" autocomplete="new-password">
+        <div class="form-message" hidden></div>
+        <button type="submit" class="play-btn" data-i18n="register">Register</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/vexflow.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
