@@ -395,11 +395,16 @@ main {
 }
 .play-btn svg { display: block; }
 
-/* Melodic-only block: stack child fields with the same gap as the card */
+/* Melodic-only sub-panel: visually grouped under the Harmonic/Melodic toggle */
 #melodic-controls {
   display: flex;
   flex-direction: column;
   gap: 22px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  padding: 16px 16px 16px 14px;
 }
 #melodic-controls.hidden { display: none; }
 

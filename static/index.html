@@ -176,21 +176,33 @@
       </header>
 
       <section class="field">
-        <span class="field-label" data-i18n="playMode">Game mode</span>
-        <div class="segmented" role="radiogroup" data-i18n-aria-label="playMode" aria-label="Game mode">
-          <label><input type="radio" name="play-mode" value="free" checked><span data-i18n="modeFree">Free</span></label>
-          <label><input type="radio" name="play-mode" value="timed"><span data-i18n="modeTimed">Timed</span></label>
-          <label><input type="radio" name="play-mode" value="streak"><span data-i18n="modeStreak">Streak</span></label>
-        </div>
-      </section>
-
-      <section class="field">
         <span class="field-label" data-i18n="mode">Mode</span>
         <div class="segmented" role="radiogroup" data-i18n-aria-label="mode" aria-label="Mode">
           <label><input type="radio" name="mode" value="harmonic"><span data-i18n="harmonic">Harmonic</span></label>
           <label><input type="radio" name="mode" value="melodic" checked><span data-i18n="melodic">Melodic</span></label>
         </div>
       </section>
+
+      <div id="melodic-controls">
+        <section class="field">
+          <label class="field-label" for="tempo-number" data-i18n="tempo">Tempo</label>
+          <div class="tempo-row">
+            <button type="button" id="tempo-minus" class="tempo-step" data-i18n-aria-label="decreaseTempo" aria-label="Decrease tempo by 10">&minus;</button>
+            <input type="number" id="tempo-number" min="30" max="400" value="120" inputmode="numeric">
+            <button type="button" id="tempo-plus" class="tempo-step" data-i18n-aria-label="increaseTempo" aria-label="Increase tempo by 10">+</button>
+            <span class="unit">BPM</span>
+          </div>
+        </section>
+
+        <section class="field">
+          <span class="field-label" data-i18n="direction">Direction</span>
+          <div class="segmented" role="radiogroup" data-i18n-aria-label="direction" aria-label="Direction">
+            <label><input type="radio" name="direction" value="any" checked><span data-i18n="anyDirection">Any</span></label>
+            <label><input type="radio" name="direction" value="ascendent"><span data-i18n="ascendent">Ascendent</span></label>
+            <label><input type="radio" name="direction" value="descendent"><span data-i18n="descendent">Descendent</span></label>
+          </div>
+        </section>
+      </div>
 
       <section class="field">
         <span class="field-label" data-i18n="range">Range</span>
@@ -220,26 +232,14 @@
         </div>
       </section>
 
-      <div id="melodic-controls">
-        <section class="field">
-          <label class="field-label" for="tempo-number" data-i18n="tempo">Tempo</label>
-          <div class="tempo-row">
-            <button type="button" id="tempo-minus" class="tempo-step" data-i18n-aria-label="decreaseTempo" aria-label="Decrease tempo by 10">&minus;</button>
-            <input type="number" id="tempo-number" min="30" max="400" value="120" inputmode="numeric">
-            <button type="button" id="tempo-plus" class="tempo-step" data-i18n-aria-label="increaseTempo" aria-label="Increase tempo by 10">+</button>
-            <span class="unit">BPM</span>
-          </div>
-        </section>
-
-        <section class="field">
-          <span class="field-label" data-i18n="direction">Direction</span>
-          <div class="segmented" role="radiogroup" data-i18n-aria-label="direction" aria-label="Direction">
-            <label><input type="radio" name="direction" value="any" checked><span data-i18n="anyDirection">Any</span></label>
-            <label><input type="radio" name="direction" value="ascendent"><span data-i18n="ascendent">Ascendent</span></label>
-            <label><input type="radio" name="direction" value="descendent"><span data-i18n="descendent">Descendent</span></label>
-          </div>
-        </section>
-      </div>
+      <section class="field">
+        <span class="field-label" data-i18n="playMode">Game mode</span>
+        <div class="segmented" role="radiogroup" data-i18n-aria-label="playMode" aria-label="Game mode">
+          <label><input type="radio" name="play-mode" value="free" checked><span data-i18n="modeFree">Free</span></label>
+          <label><input type="radio" name="play-mode" value="timed"><span data-i18n="modeTimed">Timed</span></label>
+          <label><input type="radio" name="play-mode" value="streak"><span data-i18n="modeStreak">Streak</span></label>
+        </div>
+      </section>
 
       <button id="start" class="play-btn" type="button" data-route="/interval-recognition/play">
         <span data-i18n="start">Start</span>
