@@ -36,3 +36,103 @@ This is an **AI-first project** — code changes are expected to come from the a
 - **This policy yields to the "What goes into the repo" rule above.** If a change might leak credentials or personal information, the "STOP and ASK" rule wins — do not auto-commit something that could be sensitive.
 
 This policy is permanent and implicit. The user does NOT have to say "commit and push" — that's the default for every code-modifying prompt.
+
+---
+
+# Project architecture
+
+Read this before making non-trivial changes so cold-start sessions don't have to reverse-engineer the codebase.
+
+## Layers
+
+- **Server — `main.py`.** Single file using Python's stdlib `http.server.ThreadingHTTPServer`. No framework. Handles static files, exercise audio generation, auth (cookie sessions + PBKDF2), per-user settings and stats, and an admin panel.
+- **Frontend — `static/`.** Vanilla JS SPA, no build step.
+  - `index.html` — every screen is a `<section class="view" id="view-X" hidden>`; the router shows one at a time.
+  - `app.js` — routing, game state, audio playback, i18n strings (en + es), settings/stats sync, auth.
+  - `style.css` — CSS-variable theming (`--bg`, `--text`, …) with light/dark variants on `[data-theme]`.
+  - `vexflow.js` — bundled VexFlow. Don't modify.
+- **Audio.** Rendered server-side via `pyfluidsynth` against `TimGM6mb.sf2`. Central function: `render_notes_wav(midi_notes, note_duration_s, simultaneous=False)`.
+- **Storage.** `data/users.json` (gitignored). Holds PBKDF2 password hashes, per-user `settings`, and per-user `stats`.
+
+## Server endpoints
+
+| Endpoint | Purpose |
+|---|---|
+| `/` and all SPA routes (`/interval-recognition`, `/chord-recognition/play`, `/scale-recognition/results`, `/account`, `/stats`, `/admin`, `/debug`, …) | Serve `index.html`. Listed in `STATIC_FILES`. Add new SPA routes here. |
+| `/exercise?mode=&range=&direction=&tempo=&allowed=` | Interval exercise — returns WAV + `X-Interval`, `X-Notes`. |
+| `/chord/exercise` | Chord exercise — returns WAV + `X-Chord`, `X-Notes`. |
+| `/scale/exercise?direction=&tempo=&allowed=` | Scale exercise — returns WAV + `X-Scale`, `X-Direction`, `X-Notes`. |
+| `/debug/notes?notes=…`, `/debug/info` | Internal debug tools (admin-only via UI). |
+| `/auth/login`, `/auth/register`, `/auth/logout`, `/auth/me` | Session auth (cookie `session`). |
+| `/api/settings` (GET/PUT), `/api/stats` (GET/POST) | Per-user state sync. |
+| `/api/account/username`, `/api/account/password`, `/api/account` | Profile mutations. |
+| `/api/admin/users`, `/api/admin/unlock` | Admin-only. |
+
+## Frontend key objects (`app.js`)
+
+- **`gameState`** — current game's state: `exercise`, `groups[]` (each with `audioUrl`, `notes`, `correctAnswer`, `userGuess`, timing, etc.), `currentIndex`, `score`, `playMode`, timer state, `allowedIntervals`, `allowedScales`. Reset on entry to `view-game` via `resetGameState()`.
+- **`STRINGS`** — `{ en: {...}, es: {...} }`. Every user-visible string MUST exist in both. HTML uses `data-i18n="key"`, `data-i18n-aria-label="key"`, `data-i18n-title="key"`, `data-i18n-placeholder="key"`. `applyLanguage()` propagates.
+- **`ROUTES`** — path → `view-X` id. The SPA router (`showRoute(path)` / `navigate(path)`) shows the matching view, handles `gameState.exercise` for exercise paths, and calls per-view init (`renderResults`, `renderStatsPage`, etc.).
+- **`SCALE_I18N_KEY`** / similar lookup tables map exercise-specific values to i18n keys. Same pattern is the right one for any new exercise.
+
+## Adding a new exercise — checklist
+
+The three existing exercises (interval, chord, scale) all follow this pattern. To add a fourth, touch every item below or the integration will be partial.
+
+### `main.py`
+- [ ] Add the exercise's data dict near `CHORD_TYPES` / `SCALE_TYPES` (e.g. `MELODY_PATTERNS`).
+- [ ] Add a picker function (`pick_<exercise>(...)`) returning the name + chosen MIDI notes (mirror `pick_chord` / `pick_scale`).
+- [ ] Add a new endpoint `/<exercise>/exercise` in `Handler.do_GET` — parse query params, call picker, call `render_notes_wav`, write WAV + `X-<Exercise>` + `X-Notes` headers.
+- [ ] Add three SPA routes to `STATIC_FILES`: `/<exercise>-recognition`, `/<exercise>-recognition/play`, `/<exercise>-recognition/results`.
+- [ ] Accept `"<exercise>"` in `_handle_post_stats`'s `exercise not in (...)` check.
+
+### `static/index.html`
+- [ ] Add an `<a class="exercise-item">` tile in `#view-home`'s exercise-list, routing to `/<exercise>-recognition`.
+- [ ] Add a `<section class="card view" id="view-<exercise>" hidden>` config view — Game mode (Free/Timed/Streak), exercise-specific config, allowed-items toggles, and a Start play-btn routed to `/<exercise>-recognition/play`.
+- [ ] Add a `.<exercise>-grid` of guess buttons inside `#view-game`, hidden by default, alongside `#interval-answers` / `#chord-answers` / `#scale-answers`. Each button: `data-<exercise>="<value>"`.
+
+### `static/app.js`
+- [ ] Add en + es strings: name, description, any new labels, every answer value.
+- [ ] Add the three routes to `ROUTES`.
+- [ ] Update `showRoute()` so the config and play paths set `gameState.exercise = '<exercise>'` (do NOT set it for the `/results` path — results inherits).
+- [ ] Update `exerciseBasePath()` to return `/<exercise>-recognition`.
+- [ ] Update `syncExerciseUI()` — show/hide the new answer grid, set the title key.
+- [ ] If the exercise has its own server params, add a `build<Exercise>Params()`; if it has its own tempo input, add the controls.
+- [ ] Update `playCurrentGroup()` — fetch the new endpoint, read `X-<Exercise>` and `X-Notes`, set `g.correctAnswer`, set `g.unlockOffset` (0 if the user can guess as soon as audio starts).
+- [ ] Update `updateGuessButtons()` — branch for the new exercise to apply correct/wrong/disabled classes to its buttons.
+- [ ] Update `updateStaff()` if the exercise should render notation post-guess (skip if too many notes / different shape).
+- [ ] Wire `.<exercise>-btn` click handlers: `handleGuess(btn.dataset.<exercise>)`.
+- [ ] Wire allowed-items toggle clicks (mirror `.interval-toggle` / `.scale-toggle`).
+- [ ] Update `answerKeysForExercise()`, `labelForKey()`, `exerciseTitle()` — all three.
+- [ ] Update `capturePlayMode()` — switch on `gameState.exercise` to read the right `<exercise>-play-mode` radio.
+- [ ] Update `makeEmptyGroup()` — add an `<exercise>: null` field.
+- [ ] Update `resetGameState()` — capture exercise-specific allowed values.
+- [ ] Update `gatherSettings()` / `applySettings()` — add the `<exercise>: { ... }` section so per-user settings persist.
+- [ ] Update the global `change` event listener selector to include the new exercise's form controls; hook click handlers on toggle buttons and tempo +/- so they trigger `scheduleSettingsSave()`.
+- [ ] Update `renderStatsPage()` — add `'<exercise>'` to the rendered sections list.
+
+### `static/style.css`
+- [ ] Add `.<exercise>-grid`, `.<exercise>-btn`, `.<exercise>-toggle` rules modelled on the `.scale-*` set, plus matching `@media` tweaks.
+
+If any step is missed the app still partly works but breaks subtly — e.g. forgetting `applySettings` means the user's choices don't survive logout; forgetting `renderStatsPage` means games count but never appear in the stats page.
+
+## Other recurring patterns
+
+- **Adding a new setting** — `gatherSettings()` writes it, `applySettings()` reads it, and the change handler near the bottom of `app.js` schedules a save. All three must be touched.
+- **Adding a new i18n string** — append to BOTH `en` and `es` blocks in `STRINGS`. Use a `data-i18n="key"` attribute in HTML (or call `STRINGS[lang][key]` in JS).
+- **Routes shared across exercises** (`view-game` and `view-results`) — their back / finish buttons have their `data-route` rewritten dynamically by `syncExerciseUI()`. Don't hard-code per-exercise paths into those views.
+- **Admin** — username literally `"admin"` (constant `ADMIN_USERNAME`). Exempt from permanent lock. Sees `/admin` and `/debug` entries on the home view.
+- **Theme + language flash prevention** — the inline `<script>` in `index.html`'s `<head>` applies `data-theme` synchronously before CSS loads. Don't move it.
+
+## Running locally for verification
+
+System deps (Debian/Ubuntu): `apt install libfluidsynth3 timgm6mb-soundfont`. Soundfont path is hardcoded to `/usr/share/sounds/sf2/TimGM6mb.sf2`.
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+PORT=8080 python main.py
+```
+
+Then `curl http://127.0.0.1:8080/exercise?mode=melodic&tempo=120` (etc.) to smoke-test endpoints, or open the browser at the root.
