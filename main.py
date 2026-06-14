@@ -16,7 +16,7 @@ from urllib.parse import parse_qs, urlparse
 import fluidsynth
 import numpy as np
 
-VERSION = "0.4.0"
+VERSION = "0.4.1"
 
 SOUNDFONT = "/usr/share/sounds/sf2/TimGM6mb.sf2"
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
@@ -848,6 +848,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             allowed_chords = [c for c in (chunk.strip() for chunk in allowed_str.split(",")) if c in CHORD_TYPES]
             use_inversions = qs.get("inversions", ["0"])[0] == "1"
             chord_name, notes = pick_chord(allowed_chords or None)
+            root_notes = notes[:]
             if use_inversions:
                 notes = apply_chord_inversion(notes)
             data = render_notes_wav(notes, 1.0, simultaneous=True)
@@ -857,6 +858,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.send_header("Cache-Control", "no-store")
             self.send_header("X-Chord", chord_name)
             self.send_header("X-Notes", ",".join(str(n) for n in notes))
+            self.send_header("X-Root-Notes", ",".join(str(n) for n in root_notes))
             self.end_headers()
             self.wfile.write(data)
             return
@@ -930,8 +932,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self.send_response(400)
                 self.end_headers()
                 return
+            play_simultaneous = qs.get("simultaneous", ["0"])[0] == "1"
             if hint_type == "chord":
-                note_duration_s = 60.0 / 80
+                if play_simultaneous:
+                    data = render_notes_wav(notes, 1.0, simultaneous=True)
+                else:
+                    note_duration_s = 60.0 / 80
+                    data = render_notes_wav(notes, note_duration_s, simultaneous=False)
             else:
                 try:
                     tempo = int(qs.get("tempo", ["120"])[0])
@@ -940,7 +947,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 tempo = max(MIN_TEMPO, min(MAX_TEMPO, tempo))
                 slow_tempo = max(40, tempo // 2)
                 note_duration_s = 60.0 / slow_tempo
-            data = render_notes_wav(notes, note_duration_s, simultaneous=False)
+                data = render_notes_wav(notes, note_duration_s, simultaneous=False)
             self.send_response(200)
             self.send_header("Content-Type", "audio/wav")
             self.send_header("Content-Length", str(len(data)))

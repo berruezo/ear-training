@@ -189,6 +189,7 @@ const STRINGS = {
     hint: 'Hint',
     hintSlow: 'Slow replay',
     hintArpeggiate: 'Play arpeggiated',
+    hintRootPosition: 'Root position',
     hintEliminate: 'Eliminate an option',
   },
   es: {
@@ -376,6 +377,7 @@ const STRINGS = {
     hint: 'Pista',
     hintSlow: 'Reproducción lenta',
     hintArpeggiate: 'Reproducir arpegiado',
+    hintRootPosition: 'Posición fundamental',
     hintEliminate: 'Eliminar una opción',
   },
 };
@@ -778,6 +780,7 @@ function makeEmptyGroup() {
     scale: null,
     correctAnswer: null,
     notes: null,
+    rootNotes: null,
     mode: null,
     userGuess: null,
     unlockOffset: 0,
@@ -1199,6 +1202,8 @@ async function playCurrentGroup() {
       }
       const notesHeader = r.headers.get('X-Notes');
       if (notesHeader) g.notes = notesHeader.split(',').map(n => parseInt(n, 10));
+      const rootNotesHeader = r.headers.get('X-Root-Notes');
+      if (rootNotesHeader) g.rootNotes = rootNotesHeader.split(',').map(n => parseInt(n, 10));
       const blob = await r.blob();
       g.audioUrl = URL.createObjectURL(blob);
     }
@@ -1319,6 +1324,7 @@ const hintBtnEl       = document.getElementById('hint-btn');
 const hintMenuEl      = document.getElementById('hint-menu');
 const hintSlowEl      = document.getElementById('hint-slow');
 const hintArpEl       = document.getElementById('hint-arpeggiate');
+const hintRootEl      = document.getElementById('hint-root');
 const hintElimEl      = document.getElementById('hint-eliminate');
 
 function activeOptionCount() {
@@ -1339,6 +1345,7 @@ function updateHintState() {
   }
   hintSlowEl.hidden = gameState.exercise === 'chord';
   hintArpEl.hidden  = gameState.exercise !== 'chord';
+  hintRootEl.hidden = !(gameState.exercise === 'chord' && gameState.chordInversions);
   hintElimEl.disabled = (activeOptionCount() - g.eliminated.length) <= 2;
 }
 
@@ -1401,6 +1408,16 @@ async function doArpeggiate() {
   await playHintAudio(URL.createObjectURL(blob));
 }
 
+async function doRootPosition() {
+  const g = gameState.groups[gameState.currentIndex];
+  if (!g.rootNotes) return;
+  const params = new URLSearchParams({ type: 'chord', notes: g.rootNotes.join(','), simultaneous: '1' });
+  const r = await fetch(`/hint?${params}`);
+  if (!r.ok) return;
+  const blob = await r.blob();
+  await playHintAudio(URL.createObjectURL(blob));
+}
+
 function doEliminate() {
   const g = gameState.groups[gameState.currentIndex];
   if (!g.correctAnswer) return;
@@ -1421,6 +1438,7 @@ function doEliminate() {
 
 hintSlowEl.addEventListener('click', () => doSlowReplay());
 hintArpEl.addEventListener('click', () => doArpeggiate());
+hintRootEl.addEventListener('click', () => doRootPosition());
 hintElimEl.addEventListener('click', () => doEliminate());
 
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
