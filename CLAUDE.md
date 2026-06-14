@@ -51,27 +51,29 @@ The project is currently pre-1.0 (`0.x.x`), meaning the major digit stays 0 unti
 
 ## Keeping documentation in sync
 
-The project relies on `CLAUDE.md` (and to a lesser extent `README.md`) so any fresh Claude session can pick up work without re-reading the whole codebase. Every prompt that modifies tracked files MUST end with a deliberate doc-sync check: **does this change introduce context that a future cold-start agent would need to know, and that isn't already in the docs?**
+**This is a hard requirement, not a suggestion.** The project relies on `CLAUDE.md` (and to a lesser extent `README.md`) so any fresh Claude session can pick up work without re-reading the whole codebase. Every prompt that modifies tracked files MUST end with a deliberate doc-sync check: **does this change introduce context that a future cold-start agent would need to know, and that isn't already in the docs?**
 
 If yes, update the docs **as part of the same commit** — not in a follow-up. The goal is that a cold-start agent reading the docs gains near-complete expertise about the project without needing to inspect the source. Source inspection should be confirmation, not first-time discovery.
 
-**Changes that typically require a doc update:**
+**Skipping this step is always an error.** If you realize you forgot it after committing, fix it immediately in a follow-up commit and explicitly acknowledge the oversight. No feature is too small to document if it changes a public contract, adds a config option, or introduces a non-obvious constraint.
+
+**Changes that require a doc update (non-exhaustive — when in doubt, document it):**
 - New file, module, or significant function role.
-- New server endpoint or a change to an existing endpoint's contract (params, headers, response shape).
+- New server endpoint, or any change to an existing endpoint's contract (params, headers, response shape).
 - New frontend view, route, key state object, or convention.
 - New external dependency or system requirement.
-- New configuration option, setting, or environment variable.
+- New configuration option, setting, or environment variable exposed to the user.
 - New pattern or convention that future contributors are expected to follow.
 - New gotcha, edge case, or non-obvious constraint discovered while making the change.
 - Anything that adds or removes a step from the existing "Adding a new exercise" checklist.
 
-**Changes that typically do NOT require a doc update:**
+**Changes that do NOT require a doc update:**
 - Bug fix that preserves behavior shape and the public contract.
 - Pure refactor that preserves the existing API.
 - Adding tests that don't change what's being tested.
 - Internal helpers used by only one caller.
 
-Default toward updating. If a fact would have helped you on this prompt and isn't in the docs, that's a sign the docs are missing context — add it. The cost of an extra paragraph in `CLAUDE.md` is trivial compared to the cost of a future agent making the wrong assumption from incomplete docs.
+If a fact would have helped you on this prompt and isn't in the docs, that's a sign the docs are missing context — add it. The cost of an extra paragraph in `CLAUDE.md` is trivial compared to the cost of a future agent making the wrong assumption from incomplete docs.
 
 This rule is permanent. Doc updates are part of the change itself, not a separate task. The "no personal info" rule still applies — any doc update that might include sensitive information must pause for confirmation.
 
@@ -113,7 +115,7 @@ The site is fully translated (en + es). To signal this to search engines:
 |---|---|
 | `/` and all SPA routes (`/interval-recognition`, `/chord-recognition/play`, `/scale-recognition/results`, `/account`, `/stats`, `/admin`, `/debug`, …) | Serve `index.html`. Listed in `STATIC_FILES`. Add new SPA routes here. |
 | `/exercise?mode=&range=&direction=&tempo=&allowed=` | Interval exercise — returns WAV + `X-Interval`, `X-Notes`. |
-| `/chord/exercise` | Chord exercise — returns WAV + `X-Chord`, `X-Notes`. |
+| `/chord/exercise?allowed=&inversions=` | Chord exercise — returns WAV + `X-Chord`, `X-Notes`. `allowed` is a comma-separated list of chord names (defaults to all). `inversions=1` makes the server apply a random inversion (root / 1st / 2nd / 3rd) before rendering audio; the correct answer is still the chord type, not the inversion. Default `inversions=0` (root position only). |
 | `/scale/exercise?direction=&tempo=&allowed=` | Scale exercise — returns WAV + `X-Scale`, `X-Direction`, `X-Notes`. |
 | `/debug/notes?notes=…`, `/debug/info` | Internal debug tools (admin-only via UI). |
 | `/auth/login`, `/auth/register`, `/auth/logout`, `/auth/me` | Session auth (cookie `session`). |
@@ -123,7 +125,7 @@ The site is fully translated (en + es). To signal this to search engines:
 
 ## Frontend key objects (`app.js`)
 
-- **`gameState`** — current game's state: `exercise`, `groups[]` (each with `audioUrl`, `notes`, `correctAnswer`, `userGuess`, timing, etc.), `currentIndex`, `score`, `playMode`, timer state, `allowedIntervals`, `allowedScales`. Reset on entry to `view-game` via `resetGameState()`.
+- **`gameState`** — current game's state: `exercise`, `groups[]` (each with `audioUrl`, `notes`, `correctAnswer`, `userGuess`, timing, etc.), `currentIndex`, `score`, `playMode`, timer state, `allowedIntervals`, `allowedScales`, `allowedChords`, `chordInversions` (boolean). Reset on entry to `view-game` via `resetGameState()`.
 - **`STRINGS`** — `{ en: {...}, es: {...} }`. Every user-visible string MUST exist in both. HTML uses `data-i18n="key"`, `data-i18n-aria-label="key"`, `data-i18n-title="key"`, `data-i18n-placeholder="key"`. `applyLanguage()` propagates.
 - **`ROUTES`** — path → `view-X` id. The SPA router (`showRoute(path)` / `navigate(path)`) shows the matching view, handles `gameState.exercise` for exercise paths, and calls per-view init (`renderResults`, `renderStatsPage`, etc.).
 - **`SCALE_I18N_KEY`** / similar lookup tables map exercise-specific values to i18n keys. Same pattern is the right one for any new exercise.
@@ -172,6 +174,8 @@ If any step is missed the app still partly works but breaks subtly — e.g. forg
 ## Other recurring patterns
 
 - **Config view field order** — in every exercise config view, exercise-specific options (allowed items, tempo, direction, etc.) come first; **Game mode (Free/Timed/Streak) is always the last field, immediately above the Start button**. Never place Game mode at the top.
+- **Chord toggle selector** — the chord config view has two kinds of `.chord-toggle` buttons: chord-type toggles (have `data-chord` attribute) and the inversions toggle (`#chord-inversions-btn`, no `data-chord`). Any JS that targets chord-type toggles specifically (min-count guard, `captureAllowedChords`, `applySettings`) uses `.chord-toggle[data-chord]` — **not** `.chord-toggle` — to exclude the inversions button. Keep this distinction when touching chord toggle logic.
+- **Chord inversions** — when `gameState.chordInversions` is `true`, `resetGameState()` sets the flag from `#chord-inversions-btn[aria-pressed]` and passes `inversions=1` to `/chord/exercise`. The server applies a random inversion via `apply_chord_inversion()` in `main.py`; the user's answer is still the chord type. The setting persists in `chord.inversions` under per-user settings.
 - **Adding a new setting** — `gatherSettings()` writes it, `applySettings()` reads it, and the change handler near the bottom of `app.js` schedules a save. All three must be touched.
 - **Adding a new i18n string** — append to BOTH `en` and `es` blocks in `STRINGS`. Use a `data-i18n="key"` attribute in HTML (or call `STRINGS[lang][key]` in JS).
 - **Routes shared across exercises** (`view-game` and `view-results`) — their back / finish buttons have their `data-route` rewritten dynamically by `syncExerciseUI()`. Don't hard-code per-exercise paths into those views.
