@@ -67,6 +67,7 @@ const STRINGS = {
     testLowestNote: 'Play lowest note',
     testHighestNote: 'Play highest note',
     customNote: 'Custom note',
+    debugMnemonics: 'Interval Song Mnemonics',
     decreaseNote: 'Lower note',
     increaseNote: 'Raise note',
     english: 'English',
@@ -256,6 +257,7 @@ const STRINGS = {
     testLowestNote: 'Reproducir nota más grave',
     testHighestNote: 'Reproducir nota más aguda',
     customNote: 'Nota personalizada',
+    debugMnemonics: 'Canciones mnemónicas de intervalos',
     decreaseNote: 'Bajar nota',
     increaseNote: 'Subir nota',
     english: 'Inglés',
@@ -1520,6 +1522,73 @@ document.querySelectorAll('[data-notes]').forEach(btn => {
     }
   });
 });
+
+// Build interval song mnemonic table in the debug view.
+// Song names must be kept in sync with INTERVAL_SONG_MNEMONICS in main.py.
+(function buildDebugMnemonics() {
+  const container = document.getElementById('debug-mnemonics-container');
+  if (!container) return;
+  const ROOT = 60; // C4 — fixed root for debug playback
+  const ROWS = [
+    [1,  'Minor 2nd',   'Jaws',                 'Joy to the World'],
+    [2,  'Major 2nd',   'Happy Birthday',        'Mary Had a Little Lamb'],
+    [3,  'Minor 3rd',   'Greensleeves',          'Brahms Lullaby'],
+    [4,  'Major 3rd',   'Oh When the Saints',    "Beethoven's 5th"],
+    [5,  'Perfect 4th', 'Here Comes the Bride',  'Born to Be Wild'],
+    [6,  'Tritone',     'Maria',                 'The Simpsons'],
+    [7,  'Perfect 5th', 'Star Wars',             'The Flintstones'],
+    [8,  'Minor 6th',   'The Entertainer',       'Love Story'],
+    [9,  'Major 6th',   'My Bonnie',             'My Bonnie'],
+    [10, 'Minor 7th',   'Somewhere',             'Somewhere'],
+    [11, 'Major 7th',   'Take On Me',            'I Love You'],
+    [12, 'Perfect 8th', 'Over the Rainbow',      'Deep River'],
+  ];
+  const playSvg = '<svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+  ROWS.forEach(([ic, label, ascName, descName]) => {
+    const row = document.createElement('div');
+    row.className = 'debug-mnemonic-row';
+    const nameEl = document.createElement('span');
+    nameEl.className = 'debug-mnemonic-label';
+    nameEl.textContent = label;
+    row.appendChild(nameEl);
+    [['↑', ascName, `${ROOT},${ROOT + ic}`], ['↓', descName, `${ROOT + ic},${ROOT}`]].forEach(([arrow, song, notes]) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'debug-mnemonic-btn';
+      btn.dataset.mnemonicNotes = notes;
+      btn.innerHTML = `${playSvg}<span>${arrow} ${song}</span>`;
+      row.appendChild(btn);
+    });
+    container.appendChild(row);
+  });
+
+  let activeMnemonicAudio = null;
+  container.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-mnemonic-notes]');
+    if (!btn || btn.disabled) return;
+    if (activeMnemonicAudio) { activeMnemonicAudio.pause(); activeMnemonicAudio = null; }
+    btn.disabled = true;
+    try {
+      const params = new URLSearchParams({ type: 'interval_song', notes: btn.dataset.mnemonicNotes });
+      const r = await fetch(`/hint?${params}`);
+      if (!r.ok) return;
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      activeMnemonicAudio = audio;
+      await new Promise((resolve) => {
+        audio.addEventListener('ended', resolve);
+        audio.addEventListener('error', resolve);
+        audio.addEventListener('pause', resolve);
+        audio.play().catch(resolve);
+      });
+      URL.revokeObjectURL(url);
+    } finally {
+      if (activeMnemonicAudio && activeMnemonicAudio.paused) activeMnemonicAudio = null;
+      btn.disabled = false;
+    }
+  });
+})();
 
 function formatDuration(ms) {
   const s = Math.max(0, Math.floor(ms / 1000));

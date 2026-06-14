@@ -1113,6 +1113,44 @@ input[type="range"]:focus-visible { box-shadow: var(--focus-ring); }
 }
 .hint-song-label[hidden] { display: none; }
 
+/* Debug — interval song mnemonic table */
+.debug-mnemonics-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 10px;
+}
+.debug-mnemonic-row {
+  display: grid;
+  grid-template-columns: 7rem 1fr 1fr;
+  gap: 6px;
+  align-items: center;
+}
+.debug-mnemonic-label {
+  font-size: 0.80rem;
+  color: var(--text-muted);
+}
+.debug-mnemonic-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.78rem;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.12s, border-color 0.12s;
+}
+.debug-mnemonic-btn span { overflow: hidden; text-overflow: ellipsis; }
+.debug-mnemonic-btn:hover:not(:disabled) { background: var(--accent-soft); border-color: var(--border-strong); }
+.debug-mnemonic-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.debug-mnemonic-btn:disabled { opacity: 0.38; cursor: not-allowed; }
+
 /* Eliminated guess buttons */
 .guess-btn.guess-eliminated,
 .chord-btn.guess-eliminated,
