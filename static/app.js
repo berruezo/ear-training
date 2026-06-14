@@ -1530,7 +1530,7 @@ document.querySelectorAll('[data-notes]').forEach(btn => {
   if (!container) return;
   const ROOT = 60; // C4 — fixed root for debug playback
   const ROWS = [
-    [1,  'Minor 2nd',   'Jaws',                 'Joy to the World'],
+    [1,  'Minor 2nd',   'Pink Panther',          'Joy to the World'],
     [2,  'Major 2nd',   'Happy Birthday',        'Mary Had a Little Lamb'],
     [3,  'Minor 3rd',   'Greensleeves',          'Brahms Lullaby'],
     [4,  'Major 3rd',   'Oh When the Saints',    "Beethoven's 5th"],
