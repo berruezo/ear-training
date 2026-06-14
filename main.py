@@ -16,7 +16,7 @@ from urllib.parse import parse_qs, urlparse
 import fluidsynth
 import numpy as np
 
-VERSION = "0.4.2"
+VERSION = "0.5.0"
 
 SOUNDFONT = "/usr/share/sounds/sf2/TimGM6mb.sf2"
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
@@ -112,6 +112,41 @@ _synth_lock = threading.Lock()
 
 VALID_RANGES = ("octave", "beyond", "any")
 DEFAULT_RANGE = "octave"
+
+# Song mnemonics for the interval hint.  Each key is (interval_class, direction)
+# where interval_class is 1–12 and direction is 'asc' or 'desc'.
+# Value: (display_name, [(semitone_offset_from_root, duration_beats), ...], bpm)
+# Ascending root = lower note; descending root = upper note.
+INTERVAL_SONG_MNEMONICS: dict[
+    tuple[int, str], tuple[str, list[tuple[float, float]], int]
+] = {
+    # ascending
+    (1,  'asc'): ('Jaws',                    [(0,1.0),(1,1.0),(0,1.0),(1,1.0),(0,1.0),(1,2.0)],                  80),
+    (2,  'asc'): ('Happy Birthday',          [(0,0.75),(0,0.25),(2,1.0),(0,1.0),(5,1.0),(4,2.0)],               100),
+    (3,  'asc'): ('Greensleeves',            [(0,1.0),(3,1.5),(5,0.5),(7,1.0),(11,1.5),(12,0.5)],                70),
+    (4,  'asc'): ('Oh When the Saints',      [(0,1.0),(4,1.0),(7,1.0),(12,2.0)],                                100),
+    (5,  'asc'): ('Here Comes the Bride',    [(0,1.0),(0,1.0),(5,1.5),(0,0.5),(5,0.5),(7,0.5),(5,2.0)],         80),
+    (6,  'asc'): ('Maria',                   [(0,0.5),(6,1.0),(6,0.5),(7,2.0)],                                  80),
+    (7,  'asc'): ('Star Wars',               [(0,0.5),(0,0.5),(0,0.5),(7,0.5),(4,0.5),(0,1.0),(7,0.5),(4,0.5)],120),
+    (8,  'asc'): ('The Entertainer',         [(0,0.5),(8,0.5),(7,0.5),(5,0.5),(8,1.0)],                        100),
+    (9,  'asc'): ('My Bonnie',               [(0,1.0),(9,1.0),(7,0.5),(5,0.5),(4,2.0),(2,2.0)],                100),
+    (10, 'asc'): ('Somewhere',               [(0,1.0),(10,2.0),(8,1.0),(7,0.5),(5,0.5)],                        80),
+    (11, 'asc'): ('Take On Me',              [(0,0.5),(11,0.5),(10,0.5),(9,0.5),(8,1.0),(7,2.0)],              120),
+    (12, 'asc'): ('Over the Rainbow',        [(0,1.0),(12,3.0),(11,0.5),(9,0.5),(5,1.0),(7,2.0)],               80),
+    # descending (root = upper note, offsets are negative)
+    (1,  'desc'): ('Joy to the World',       [(0,1.0),(-1,0.5),(-3,0.5),(-5,1.0),(-5,1.0)],                    80),
+    (2,  'desc'): ('Mary Had a Little Lamb', [(0,1.0),(-2,1.0),(-4,1.0),(-2,1.0),(0,1.0),(0,1.0),(0,2.0)],    100),
+    (3,  'desc'): ('Brahms Lullaby',         [(0,0.5),(0,0.5),(-3,1.0),(0,0.5),(-3,1.5),(-5,0.5)],             80),
+    (4,  'desc'): ("Beethoven's 5th",        [(0,0.5),(0,0.5),(0,0.5),(-4,2.0)],                               120),
+    (5,  'desc'): ('Born to Be Wild',        [(0,1.0),(-5,0.5),(-3,0.5),(-5,0.5),(0,1.5)],                    120),
+    (6,  'desc'): ('The Simpsons',           [(0,1.5),(-6,0.5),(-5,0.5),(-3,0.5),(-1,0.5),(0,1.0)],           160),
+    (7,  'desc'): ('The Flintstones',        [(0,1.0),(-7,1.5),(-5,0.5),(-3,1.0),(-5,2.0)],                   120),
+    (8,  'desc'): ('Love Story',             [(0,2.0),(-8,2.0),(-7,1.0),(-5,0.5),(-4,0.5)],                    80),
+    (9,  'desc'): ('My Bonnie',              [(0,1.5),(-9,0.5),(-7,1.0),(-4,1.0),(-2,2.0)],                   100),
+    (10, 'desc'): ('Somewhere',              [(0,1.0),(-10,2.0),(-8,1.0),(-7,0.5),(-5,0.5)],                   80),
+    (11, 'desc'): ('I Love You',             [(0,1.0),(-11,2.0),(-10,1.0),(-9,2.0)],                           80),
+    (12, 'desc'): ('Deep River',             [(0,1.0),(-12,3.0),(-11,0.5),(-9,0.5),(-5,1.0)],                  80),
+}
 
 
 DATA_DIR = Path(os.environ.get("DATA_DIR", os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")))
@@ -399,6 +434,31 @@ def render_notes_wav(
         # Capture the natural release tail of the final note(s).
         chunks.append(_synth.get_samples(release_samples))
 
+    samples = np.concatenate(chunks).astype(np.int16)
+    samples = _apply_fades(samples, fade_in_samples, fade_out_samples)
+    buf = io.BytesIO()
+    with wave.open(buf, "wb") as wav:
+        wav.setnchannels(2)
+        wav.setsampwidth(2)
+        wav.setframerate(SAMPLE_RATE)
+        wav.writeframes(samples.tobytes())
+    return buf.getvalue()
+
+
+def render_melody_wav(sequence: list[tuple[int, float]], bpm: float) -> bytes:
+    """Render a melody with per-note durations (beats at the given BPM)."""
+    spb = 60.0 / bpm  # seconds per beat
+    release_samples = int(SAMPLE_RATE * RELEASE_TAIL_S)
+    fade_in_samples = int(SAMPLE_RATE * FADE_IN_S)
+    fade_out_samples = int(SAMPLE_RATE * FADE_OUT_S)
+    chunks: list[np.ndarray] = []
+    with _synth_lock:
+        for note, beats in sequence:
+            hold = int(SAMPLE_RATE * beats * spb)
+            _synth.noteon(0, note, VELOCITY)
+            chunks.append(_synth.get_samples(hold))
+            _synth.noteoff(0, note)
+        chunks.append(_synth.get_samples(release_samples))
     samples = np.concatenate(chunks).astype(np.int16)
     samples = _apply_fades(samples, fade_in_samples, fade_out_samples)
     buf = io.BytesIO()
@@ -928,9 +988,42 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     n = int(tok)
                     if 0 <= n <= 127:
                         notes.append(n)
-            if not notes or hint_type not in ("interval", "chord", "scale"):
+            if not notes or hint_type not in ("interval", "chord", "scale", "interval_song"):
                 self.send_response(400)
                 self.end_headers()
+                return
+            if hint_type == "interval_song":
+                if len(notes) < 2:
+                    self.send_response(400)
+                    self.end_headers()
+                    return
+                root = notes[0]
+                semitones = abs(notes[1] - notes[0])
+                direction = 'asc' if notes[1] >= notes[0] else 'desc'
+                ic = ((semitones - 1) % 12) + 1 if semitones > 0 else 0
+                key = (ic, direction)
+                if key not in INTERVAL_SONG_MNEMONICS:
+                    self.send_response(404)
+                    self.end_headers()
+                    return
+                song_name, pattern, bpm = INTERVAL_SONG_MNEMONICS[key]
+                melody: list[tuple[int, float]] = []
+                for offset, beats in pattern:
+                    note = root + int(offset)
+                    while note < 0:
+                        note += 12
+                    while note > 127:
+                        note -= 12
+                    melody.append((note, beats))
+                data = render_melody_wav(melody, bpm)
+                self.send_response(200)
+                self.send_header("Content-Type", "audio/wav")
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Access-Control-Expose-Headers", "X-Song-Name")
+                self.send_header("X-Song-Name", song_name)
+                self.end_headers()
+                self.wfile.write(data)
                 return
             play_simultaneous = qs.get("simultaneous", ["0"])[0] == "1"
             if hint_type == "chord":

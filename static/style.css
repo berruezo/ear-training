@@ -1102,6 +1102,16 @@ input[type="range"]:focus-visible { box-shadow: var(--focus-ring); }
 .hint-item:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
 .hint-item:disabled { opacity: 0.38; cursor: not-allowed; }
 .hint-item + .hint-item { border-top: 1px solid var(--border); }
+.hint-song-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: right;
+  margin-top: 4px;
+  white-space: nowrap;
+}
+.hint-song-label[hidden] { display: none; }
 
 /* Eliminated guess buttons */
 .guess-btn.guess-eliminated,

@@ -190,6 +190,7 @@ const STRINGS = {
     hintSlow: 'Slow replay',
     hintArpeggiate: 'Play arpeggiated',
     hintRootPosition: 'Root position',
+    hintSong: 'Song mnemonic',
     hintEliminate: 'Eliminate an option',
   },
   es: {
@@ -378,6 +379,7 @@ const STRINGS = {
     hintSlow: 'Reproducción lenta',
     hintArpeggiate: 'Reproducir arpegiado',
     hintRootPosition: 'Posición fundamental',
+    hintSong: 'Canción mnemónica',
     hintEliminate: 'Eliminar una opción',
   },
 };
@@ -1317,15 +1319,18 @@ function stopHintAudio() {
     hintAudio.pause();
     hintAudio = null;
   }
+  if (hintSongLabelEl) hintSongLabelEl.hidden = true;
 }
 
-const hintContainerEl = document.getElementById('hint-container');
-const hintBtnEl       = document.getElementById('hint-btn');
-const hintMenuEl      = document.getElementById('hint-menu');
-const hintSlowEl      = document.getElementById('hint-slow');
-const hintArpEl       = document.getElementById('hint-arpeggiate');
-const hintRootEl      = document.getElementById('hint-root');
-const hintElimEl      = document.getElementById('hint-eliminate');
+const hintContainerEl  = document.getElementById('hint-container');
+const hintBtnEl        = document.getElementById('hint-btn');
+const hintMenuEl       = document.getElementById('hint-menu');
+const hintSlowEl       = document.getElementById('hint-slow');
+const hintArpEl        = document.getElementById('hint-arpeggiate');
+const hintRootEl       = document.getElementById('hint-root');
+const hintSongEl       = document.getElementById('hint-song');
+const hintSongLabelEl  = document.getElementById('hint-song-label');
+const hintElimEl       = document.getElementById('hint-eliminate');
 
 function activeOptionCount() {
   if (gameState.exercise === 'chord') return (gameState.allowedChords || []).length;
@@ -1346,6 +1351,8 @@ function updateHintState() {
   hintSlowEl.hidden = gameState.exercise === 'chord';
   hintArpEl.hidden  = gameState.exercise !== 'chord';
   hintRootEl.hidden = !(gameState.exercise === 'chord' && gameState.chordInversions);
+  const ic = parseInt(g.correctAnswer, 10);
+  hintSongEl.hidden = gameState.exercise !== 'interval' || ic === 0 || isNaN(ic);
   hintElimEl.disabled = (activeOptionCount() - g.eliminated.length) <= 2;
 }
 
@@ -1436,9 +1443,26 @@ function doEliminate() {
   updateAllButtons();
 }
 
+async function doSongMnemonic() {
+  const g = gameState.groups[gameState.currentIndex];
+  if (!g.notes) return;
+  const params = new URLSearchParams({ type: 'interval_song', notes: g.notes.join(',') });
+  const r = await fetch(`/hint?${params}`);
+  if (!r.ok) return;
+  const songName = r.headers.get('X-Song-Name') || '';
+  const blob = await r.blob();
+  if (hintSongLabelEl && songName) {
+    hintSongLabelEl.textContent = `♫ ${songName}`;
+    hintSongLabelEl.hidden = false;
+  }
+  await playHintAudio(URL.createObjectURL(blob));
+  if (hintSongLabelEl) hintSongLabelEl.hidden = true;
+}
+
 hintSlowEl.addEventListener('click', () => doSlowReplay());
 hintArpEl.addEventListener('click', () => doArpeggiate());
 hintRootEl.addEventListener('click', () => doRootPosition());
+hintSongEl.addEventListener('click', () => doSongMnemonic());
 hintElimEl.addEventListener('click', () => doEliminate());
 
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
