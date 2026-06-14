@@ -268,6 +268,22 @@
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
           <span id="score-wrong" class="score-count">0</span>
         </div>
+        <div id="hint-container" class="hint-container" hidden>
+          <button type="button" id="hint-btn" class="hint-btn" aria-haspopup="true" aria-expanded="false">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="9" y1="18" x2="15" y2="18"/>
+              <line x1="10" y1="22" x2="14" y2="22"/>
+              <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>
+            </svg>
+            <span data-i18n="hint">Hint</span>
+          </button>
+          <div id="hint-menu" class="hint-menu" role="menu" hidden>
+            <button type="button" class="hint-item" id="hint-slow" role="menuitem" data-i18n="hintSlow">Slow replay</button>
+            <button type="button" class="hint-item" id="hint-arpeggiate" role="menuitem" data-i18n="hintArpeggiate">Play arpeggiated</button>
+            <button type="button" class="hint-item" id="hint-root" role="menuitem" data-i18n="hintRootPosition">Root position</button>
+            <button type="button" class="hint-item" id="hint-eliminate" role="menuitem" data-i18n="hintEliminate">Eliminate an option</button>
+          </div>
+        </div>
       </div>
 
       <div class="game-controls">
@@ -281,23 +297,6 @@
         <button type="button" id="game-next" class="nav-btn" data-i18n-aria-label="next" aria-label="Next" disabled>
           <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M16 6h2v12h-2V6zm-2 6L5.5 6v12L14 12z"/></svg>
         </button>
-      </div>
-
-      <div id="hint-container" class="hint-container" hidden>
-        <button type="button" id="hint-btn" class="hint-btn" aria-haspopup="true" aria-expanded="false">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <line x1="9" y1="18" x2="15" y2="18"/>
-            <line x1="10" y1="22" x2="14" y2="22"/>
-            <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>
-          </svg>
-          <span data-i18n="hint">Hint</span>
-        </button>
-        <div id="hint-menu" class="hint-menu" role="menu" hidden>
-          <button type="button" class="hint-item" id="hint-slow" role="menuitem" data-i18n="hintSlow">Slow replay</button>
-          <button type="button" class="hint-item" id="hint-arpeggiate" role="menuitem" data-i18n="hintArpeggiate">Play arpeggiated</button>
-          <button type="button" class="hint-item" id="hint-root" role="menuitem" data-i18n="hintRootPosition">Root position</button>
-          <button type="button" class="hint-item" id="hint-eliminate" role="menuitem" data-i18n="hintEliminate">Eliminate an option</button>
-        </div>
       </div>
 
       <div class="guesses interval-grid" id="interval-answers">

@@ -435,8 +435,10 @@ main {
 .score {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 14px;
   margin-top: -6px;
+  position: relative;
 }
 .score-item {
   display: inline-flex;
@@ -1049,11 +1051,13 @@ input[type="range"]:focus-visible { box-shadow: var(--focus-ring); }
 
 /* Hint button and dropdown menu */
 .hint-container {
-  position: relative;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin: 2px 0;
+  align-items: flex-end;
 }
 .hint-container[hidden],
 .hint-item[hidden] { display: none; }
@@ -1076,8 +1080,7 @@ input[type="range"]:focus-visible { box-shadow: var(--focus-ring); }
 .hint-menu {
   position: absolute;
   top: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
+  right: 0;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 8px;
