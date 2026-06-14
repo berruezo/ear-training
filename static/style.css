@@ -864,6 +864,9 @@ main {
 [data-theme="dark"] .status-locked { background: rgba(248, 113, 113, 0.18); color: #f87171; }
 .status-detail { display: block; font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
 .admin-unlock-btn { padding: 4px 10px; font-size: 0.85rem; }
+.admin-section-title { margin: 28px 0 4px; font-size: 1.05rem; font-weight: 650; }
+.admin-ua-cell { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.8rem; color: var(--text-muted); cursor: default; }
+.admin-conn-table td:nth-child(1) { white-space: nowrap; }
 
 /* Stats page — large headline + sub-sections per exercise */
 #stats-content { display: flex; flex-direction: column; gap: 28px; }

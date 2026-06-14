@@ -1,3 +1,4 @@
+import collections
 import hashlib
 import http.server
 import io
@@ -15,7 +16,7 @@ from urllib.parse import parse_qs, urlparse
 import fluidsynth
 import numpy as np
 
-VERSION = "0.1.1"
+VERSION = "0.1.2"
 
 SOUNDFONT = "/usr/share/sounds/sf2/TimGM6mb.sf2"
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
@@ -115,6 +116,7 @@ DEFAULT_RANGE = "octave"
 
 DATA_DIR = Path(os.environ.get("DATA_DIR", os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")))
 USERS_FILE = DATA_DIR / "users.json"
+CONNECTIONS_FILE = DATA_DIR / "connections.json"
 USERNAME_RE = re.compile(r"^[a-zA-Z0-9_-]{3,32}$")
 PASSWORD_MIN_LEN = 6
 SESSION_TTL_S = 30 * 86400
@@ -131,6 +133,10 @@ _sessions: dict[str, tuple[str, float]] = {}  # token -> (username, expires_at)
 _last_access_cache: dict[str, float] = {}     # username -> last time we persisted last_access
 LAST_ACCESS_THROTTLE_S = 60                   # min interval between persisted last_access updates
 
+_connections_lock = threading.Lock()
+_connection_log: collections.deque = collections.deque(maxlen=500)
+CONNECTION_LOG_LIMIT = 500
+
 
 def load_users() -> dict:
     if not USERS_FILE.exists():
@@ -146,6 +152,22 @@ def save_users(users: dict) -> None:
     tmp = USERS_FILE.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(users, indent=2, sort_keys=True))
     tmp.replace(USERS_FILE)
+
+
+def load_connections() -> list:
+    if not CONNECTIONS_FILE.exists():
+        return []
+    try:
+        return json.loads(CONNECTIONS_FILE.read_text())
+    except Exception:
+        return []
+
+
+def save_connections(entries: list) -> None:
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    tmp = CONNECTIONS_FILE.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(entries))
+    tmp.replace(CONNECTIONS_FILE)
 
 
 def hash_password(password: str, salt: bytes | None = None) -> tuple[bytes, bytes]:
@@ -560,6 +582,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
             save_users(users)
         self._send_json(200, {"ok": True, "username": key})
 
+    def _handle_admin_connections(self) -> None:
+        if self._current_user() != ADMIN_USERNAME:
+            return self._send_json(403, {"error": "forbidden"})
+        with _connections_lock:
+            entries = list(_connection_log)
+        entries.reverse()  # newest first
+        self._send_json(200, {"connections": entries[:100]})
+
     def _handle_get_stats(self) -> None:
         user = self._current_user()
         if not user:
@@ -750,6 +780,17 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.send_header("Cache-Control", "no-store")
             self.end_headers()
             self.wfile.write(data)
+            if filename == "index.html":
+                entry = {
+                    "ts": time.time(),
+                    "ip": self.client_address[0],
+                    "path": parsed.path,
+                    "user": self._current_user(),
+                    "ua": (self.headers.get("User-Agent") or "")[:200],
+                }
+                with _connections_lock:
+                    _connection_log.append(entry)
+                    save_connections(list(_connection_log))
             return
 
         if parsed.path == "/api/version":
@@ -772,6 +813,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
         if parsed.path == "/api/admin/users":
             return self._handle_admin_users()
+
+        if parsed.path == "/api/admin/connections":
+            return self._handle_admin_connections()
 
         if parsed.path == "/debug/info":
             payload = json.dumps({
@@ -909,6 +953,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
 
 def main() -> None:
+    for entry in load_connections()[-CONNECTION_LOG_LIMIT:]:
+        _connection_log.append(entry)
     server = http.server.ThreadingHTTPServer((HOST, PORT), Handler)
     print(f"Serving on http://{HOST}:{PORT}")
     try:

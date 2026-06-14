@@ -173,6 +173,14 @@ const STRINGS = {
     adminStatusLockedPermanent: 'Locked (permanent)',
     adminUnlock: 'Unlock',
     adminUntil: 'until',
+    adminConnections: 'Recent connections',
+    adminColTime: 'Time',
+    adminColPath: 'Page',
+    adminColUser: 'User',
+    adminColIP: 'IP',
+    adminColUA: 'Browser',
+    adminAnonymous: 'Anonymous',
+    adminTotalConnections: 'Total connections',
     errAccountLockedTemporary: 'Account locked. Try again after {time}.',
     errAccountLockedPermanent: 'Account permanently locked. Contact an admin to unlock it.',
   },
@@ -345,6 +353,14 @@ const STRINGS = {
     adminStatusLockedPermanent: 'Bloqueada (permanente)',
     adminUnlock: 'Desbloquear',
     adminUntil: 'hasta',
+    adminConnections: 'Conexiones recientes',
+    adminColTime: 'Hora',
+    adminColPath: 'Página',
+    adminColUser: 'Usuario',
+    adminColIP: 'IP',
+    adminColUA: 'Navegador',
+    adminAnonymous: 'Anónimo',
+    adminTotalConnections: 'Total de conexiones',
     errAccountLockedTemporary: 'Cuenta bloqueada. Inténtalo de nuevo después de {time}.',
     errAccountLockedPermanent: 'Cuenta bloqueada permanentemente. Contacta a un administrador para desbloquearla.',
   },
@@ -1646,20 +1662,24 @@ async function renderAdminPage() {
   const lang = document.documentElement.lang || 'en';
   const t = STRINGS[lang] || STRINGS.en;
   let users = [];
+  let connections = [];
   try {
-    const r = await fetch('/api/admin/users');
-    if (!r.ok) {
+    const [usersRes, connRes] = await Promise.all([
+      fetch('/api/admin/users'),
+      fetch('/api/admin/connections'),
+    ]);
+    if (!usersRes.ok) {
       content.innerHTML = '';
       return;
     }
-    const j = await r.json();
-    users = j.users || [];
+    users = (await usersRes.json()).users || [];
+    if (connRes.ok) connections = (await connRes.json()).connections || [];
   } catch (e) {
     content.innerHTML = '';
     return;
   }
   const now = Date.now() / 1000;
-  const rows = users.map(u => {
+  const userRows = users.map(u => {
     const created = formatAbsoluteDateTime(u.createdAt) || '—';
     const lastAccess = formatAbsoluteDateTime(u.lastAccessAt) || t.adminNever;
     const tempLocked = !u.permanentlyLocked && (u.lockUntil || 0) > now;
@@ -1684,6 +1704,18 @@ async function renderAdminPage() {
       <td>${actionHtml}</td>
     </tr>`;
   }).join('');
+  const connRows = connections.map(c => {
+    const ts = formatAbsoluteDateTime(c.ts) || '—';
+    const user = c.user ? escapeHtml(c.user) : `<em>${escapeHtml(t.adminAnonymous)}</em>`;
+    const ua = escapeHtml((c.ua || '').substring(0, 80));
+    return `<tr>
+      <td>${escapeHtml(ts)}</td>
+      <td>${escapeHtml(c.path || '')}</td>
+      <td>${user}</td>
+      <td>${escapeHtml(c.ip || '')}</td>
+      <td class="admin-ua-cell" title="${escapeHtml(c.ua || '')}">${ua}</td>
+    </tr>`;
+  }).join('');
   content.innerHTML = `
     <div class="results-stats">
       <div class="stat"><span class="stat-label">${t.adminTotalUsers}</span><span class="stat-value">${users.length}</span></div>
@@ -1696,7 +1728,21 @@ async function renderAdminPage() {
         <th>${t.adminColStatus}</th>
         <th>${t.adminColActions}</th>
       </tr></thead>
-      <tbody>${rows}</tbody>
+      <tbody>${userRows}</tbody>
+    </table></div>
+    <h2 class="admin-section-title">${escapeHtml(t.adminConnections)}</h2>
+    <div class="results-stats">
+      <div class="stat"><span class="stat-label">${t.adminTotalConnections}</span><span class="stat-value">${connections.length}</span></div>
+    </div>
+    <div class="results-table-wrap"><table class="results-table admin-conn-table">
+      <thead><tr>
+        <th>${t.adminColTime}</th>
+        <th>${t.adminColPath}</th>
+        <th>${t.adminColUser}</th>
+        <th>${t.adminColIP}</th>
+        <th>${t.adminColUA}</th>
+      </tr></thead>
+      <tbody>${connRows}</tbody>
     </table></div>`;
   content.querySelectorAll('.admin-unlock-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
