@@ -439,6 +439,7 @@ main {
   gap: 14px;
   margin-top: -6px;
   position: relative;
+  z-index: 1;
 }
 .score-item {
   display: inline-flex;
