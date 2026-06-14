@@ -16,7 +16,7 @@ from urllib.parse import parse_qs, urlparse
 import fluidsynth
 import numpy as np
 
-VERSION = "0.2.1"
+VERSION = "0.3.0"
 
 SOUNDFONT = "/usr/share/sounds/sf2/TimGM6mb.sf2"
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
@@ -255,6 +255,17 @@ def pick_chord(allowed: list[str] | None = None) -> tuple[str, list[int]]:
     max_offset = max(intervals)
     root = random.randint(LOWEST_MIDI_NOTE, HIGHEST_MIDI_NOTE - max_offset)
     return name, [root + i for i in intervals]
+
+
+def apply_chord_inversion(notes: list[int]) -> list[int]:
+    """Rotate notes to a random inversion (including root position) by raising
+    the lowest note one octave at a time."""
+    result = list(notes)
+    inversion = random.randint(0, len(result) - 1)
+    for _ in range(inversion):
+        result[0] += 12
+        result.sort()
+    return result
 
 
 def pick_scale(direction: str, allowed: list[str] | None = None) -> tuple[str, str, list[int]]:
@@ -835,7 +846,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
             qs = parse_qs(parsed.query)
             allowed_str = qs.get("allowed", [""])[0]
             allowed_chords = [c for c in (chunk.strip() for chunk in allowed_str.split(",")) if c in CHORD_TYPES]
+            use_inversions = qs.get("inversions", ["0"])[0] == "1"
             chord_name, notes = pick_chord(allowed_chords or None)
+            if use_inversions:
+                notes = apply_chord_inversion(notes)
             data = render_notes_wav(notes, 1.0, simultaneous=True)
             self.send_response(200)
             self.send_header("Content-Type", "audio/wav")

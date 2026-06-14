@@ -95,6 +95,8 @@ const STRINGS = {
     chordMinor: 'Minor',
     chordAugmented: 'Augmented',
     chordDiminished: 'Diminished',
+    chordInversions: 'Inversions',
+    chordInversionsLabel: 'Include inversions',
     scaleName: 'Scales',
     scaleDesc: 'Identify the scale being played',
     allowedScales: 'Allowed scales',
@@ -276,6 +278,8 @@ const STRINGS = {
     chordMinor: 'Menor',
     chordAugmented: 'Aumentado',
     chordDiminished: 'Disminuido',
+    chordInversions: 'Inversiones',
+    chordInversionsLabel: 'Incluir inversiones',
     scaleName: 'Escalas',
     scaleDesc: 'Identifica la escala que se está reproduciendo',
     allowedScales: 'Escalas permitidas',
@@ -656,16 +660,24 @@ function captureAllowedChords() {
   return out.length ? out : CHORD_KEYS.slice();
 }
 
-document.querySelectorAll('.chord-toggle').forEach(btn => {
+document.querySelectorAll('.chord-toggle[data-chord]').forEach(btn => {
   btn.addEventListener('click', () => {
     const isOn = btn.getAttribute('aria-pressed') === 'true';
     if (isOn) {
-      const onCount = document.querySelectorAll('.chord-toggle[aria-pressed="true"]').length;
+      const onCount = document.querySelectorAll('.chord-toggle[data-chord][aria-pressed="true"]').length;
       if (onCount <= 2) return;
     }
     btn.setAttribute('aria-pressed', isOn ? 'false' : 'true');
   });
 });
+
+const chordInversionsBtn = document.getElementById('chord-inversions-btn');
+if (chordInversionsBtn) {
+  chordInversionsBtn.addEventListener('click', () => {
+    const isOn = chordInversionsBtn.getAttribute('aria-pressed') === 'true';
+    chordInversionsBtn.setAttribute('aria-pressed', isOn ? 'false' : 'true');
+  });
+}
 
 document.querySelectorAll('.interval-toggle').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -779,6 +791,7 @@ function resetGameState() {
   gameState.allowedIntervals = captureAllowedIntervals();
   gameState.allowedScales = captureAllowedScales();
   gameState.allowedChords = captureAllowedChords();
+  gameState.chordInversions = document.getElementById('chord-inversions-btn')?.getAttribute('aria-pressed') === 'true';
   gameState.score = { correct: 0, wrong: 0 };
   gameState.startTime = Date.now();
   gameState.playMode = capturePlayMode();
@@ -1127,7 +1140,10 @@ async function playCurrentGroup() {
         g.mode = 'harmonic';
         g.unlockOffset = 0;
         const allowed = gameState.allowedChords || captureAllowedChords();
-        const chordParams = new URLSearchParams({ allowed: allowed.join(',') });
+        const chordParams = new URLSearchParams({
+          allowed: allowed.join(','),
+          inversions: gameState.chordInversions ? '1' : '0',
+        });
         r = await fetch(`/chord/exercise?${chordParams}`);
         const chordHeader = r.headers.get('X-Chord');
         if (chordHeader) {
@@ -1817,8 +1833,9 @@ function gatherSettings() {
     chord: {
       playMode: document.querySelector('input[name="chord-play-mode"]:checked')?.value || 'free',
       allowedChords: Array.from(
-        document.querySelectorAll('.chord-toggle[aria-pressed="true"]')
+        document.querySelectorAll('.chord-toggle[data-chord][aria-pressed="true"]')
       ).map(b => b.dataset.chord).filter(Boolean),
+      inversions: document.getElementById('chord-inversions-btn')?.getAttribute('aria-pressed') === 'true',
     },
     scale: {
       playMode: document.querySelector('input[name="scale-play-mode"]:checked')?.value || 'free',
@@ -1861,9 +1878,13 @@ function applySettings(s) {
       if (r) r.checked = true;
     }
     if (s.chord && Array.isArray(s.chord.allowedChords)) {
-      document.querySelectorAll('.chord-toggle').forEach(btn => {
+      document.querySelectorAll('.chord-toggle[data-chord]').forEach(btn => {
         btn.setAttribute('aria-pressed', s.chord.allowedChords.includes(btn.dataset.chord) ? 'true' : 'false');
       });
+    }
+    if (s.chord) {
+      const invBtn = document.getElementById('chord-inversions-btn');
+      if (invBtn) invBtn.setAttribute('aria-pressed', s.chord.inversions ? 'true' : 'false');
     }
     const sc = s.scale || {};
     [['scale-play-mode', sc.playMode], ['scale-direction', sc.direction]].forEach(([name, value]) => {
@@ -1932,6 +1953,9 @@ document.querySelectorAll('.scale-toggle').forEach(btn => {
 document.querySelectorAll('.chord-toggle').forEach(btn => {
   btn.addEventListener('click', () => setTimeout(scheduleSettingsSave, 0));
 });
+if (chordInversionsBtn) {
+  chordInversionsBtn.addEventListener('click', () => setTimeout(scheduleSettingsSave, 0));
+}
 // Tempo +/− buttons mutate the number input but don't fire its 'change'.
 [
   document.getElementById('tempo-minus'), document.getElementById('tempo-plus'),
