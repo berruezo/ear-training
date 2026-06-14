@@ -609,21 +609,19 @@ main {
 .chord-toggle:focus-visible { outline: none; box-shadow: var(--focus-ring); border-color: var(--accent); }
 .chord-toggle[aria-pressed="true"] {
   background: var(--accent-soft);
-  border-color: var(--border-strong);
+  border-color: var(--accent);
 }
 .chord-toggle[aria-pressed="false"] {
-  opacity: 0.32;
-  text-decoration: line-through;
+  color: var(--text-muted);
 }
 
 /* Allowed-intervals toggles (configuration view) */
 .interval-toggle[aria-pressed="true"] {
   background: var(--accent-soft);
-  border-color: var(--border-strong);
+  border-color: var(--accent);
 }
 .interval-toggle[aria-pressed="false"] {
-  opacity: 0.32;
-  text-decoration: line-through;
+  color: var(--text-muted);
 }
 
 /* Scale recognition: 2-column grid of buttons (longer labels than chords).
@@ -672,11 +670,10 @@ main {
 
 .scale-toggle[aria-pressed="true"] {
   background: var(--accent-soft);
-  border-color: var(--border-strong);
+  border-color: var(--accent);
 }
 .scale-toggle[aria-pressed="false"] {
-  opacity: 0.32;
-  text-decoration: line-through;
+  color: var(--text-muted);
 }
 
 /* Exercise list (home view) */
