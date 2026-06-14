@@ -16,7 +16,7 @@ from urllib.parse import parse_qs, urlparse
 import fluidsynth
 import numpy as np
 
-VERSION = "0.4.1"
+VERSION = "0.4.2"
 
 SOUNDFONT = "/usr/share/sounds/sf2/TimGM6mb.sf2"
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
