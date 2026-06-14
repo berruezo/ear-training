@@ -658,7 +658,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if self._current_user() != ADMIN_USERNAME:
             return self._send_json(403, {"error": "forbidden"})
         with _connections_lock:
-            entries = list(_connection_log)
+            entries = [e for e in _connection_log if e.get("ip") != "127.0.0.1"]
         entries.reverse()  # newest first
         self._send_json(200, {"connections": entries[:100]})
 
@@ -860,9 +860,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     "user": self._current_user(),
                     "ua": (self.headers.get("User-Agent") or "")[:200],
                 }
-                with _connections_lock:
-                    _connection_log.append(entry)
-                    save_connections(list(_connection_log))
+                if entry["ip"] != "127.0.0.1":
+                    with _connections_lock:
+                        _connection_log.append(entry)
+                        save_connections(list(_connection_log))
             return
 
         if parsed.path == "/api/version":
