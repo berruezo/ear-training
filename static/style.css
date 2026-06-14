@@ -1081,7 +1081,7 @@ input[type="range"]:focus-visible { box-shadow: var(--focus-ring); }
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
-  background: var(--card);
+  background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.14);
