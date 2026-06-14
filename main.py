@@ -16,7 +16,7 @@ from urllib.parse import parse_qs, urlparse
 import fluidsynth
 import numpy as np
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 
 SOUNDFONT = "/usr/share/sounds/sf2/TimGM6mb.sf2"
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
@@ -907,6 +907,40 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if not notes:
                 notes = [LOWEST_MIDI_NOTE, HIGHEST_MIDI_NOTE]
             data = render_notes_wav(notes, 1.0, simultaneous=False)
+            self.send_response(200)
+            self.send_header("Content-Type", "audio/wav")
+            self.send_header("Content-Length", str(len(data)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(data)
+            return
+
+        if parsed.path == "/hint":
+            qs = parse_qs(parsed.query)
+            hint_type = qs.get("type", [""])[0]
+            notes_str = qs.get("notes", [""])[0]
+            notes: list[int] = []
+            for tok in notes_str.split(","):
+                tok = tok.strip()
+                if tok.isdigit():
+                    n = int(tok)
+                    if 0 <= n <= 127:
+                        notes.append(n)
+            if not notes or hint_type not in ("interval", "chord", "scale"):
+                self.send_response(400)
+                self.end_headers()
+                return
+            if hint_type == "chord":
+                note_duration_s = 60.0 / 80
+            else:
+                try:
+                    tempo = int(qs.get("tempo", ["120"])[0])
+                except ValueError:
+                    tempo = 120
+                tempo = max(MIN_TEMPO, min(MAX_TEMPO, tempo))
+                slow_tempo = max(40, tempo // 2)
+                note_duration_s = 60.0 / slow_tempo
+            data = render_notes_wav(notes, note_duration_s, simultaneous=False)
             self.send_response(200)
             self.send_header("Content-Type", "audio/wav")
             self.send_header("Content-Length", str(len(data)))

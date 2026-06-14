@@ -283,6 +283,22 @@
         </button>
       </div>
 
+      <div id="hint-container" class="hint-container" hidden>
+        <button type="button" id="hint-btn" class="hint-btn" aria-haspopup="true" aria-expanded="false">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="9" y1="18" x2="15" y2="18"/>
+            <line x1="10" y1="22" x2="14" y2="22"/>
+            <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>
+          </svg>
+          <span data-i18n="hint">Hint</span>
+        </button>
+        <div id="hint-menu" class="hint-menu" role="menu" hidden>
+          <button type="button" class="hint-item" id="hint-slow" role="menuitem" data-i18n="hintSlow">Slow replay</button>
+          <button type="button" class="hint-item" id="hint-arpeggiate" role="menuitem" data-i18n="hintArpeggiate">Play arpeggiated</button>
+          <button type="button" class="hint-item" id="hint-eliminate" role="menuitem" data-i18n="hintEliminate">Eliminate an option</button>
+        </div>
+      </div>
+
       <div class="guesses interval-grid" id="interval-answers">
         <button type="button" class="guess-btn" data-interval="1"  data-i18n-title="interval1Full"  title="Minor 2nd"><span data-i18n="interval1">m2</span></button>
         <button type="button" class="guess-btn" data-interval="3"  data-i18n-title="interval3Full"  title="Minor 3rd"><span data-i18n="interval3">m3</span></button>

@@ -186,6 +186,10 @@ const STRINGS = {
     adminTotalConnections: 'Total connections',
     errAccountLockedTemporary: 'Account locked. Try again after {time}.',
     errAccountLockedPermanent: 'Account permanently locked. Contact an admin to unlock it.',
+    hint: 'Hint',
+    hintSlow: 'Slow replay',
+    hintArpeggiate: 'Play arpeggiated',
+    hintEliminate: 'Eliminate an option',
   },
   es: {
     title: 'Entrenamiento auditivo',
@@ -369,6 +373,10 @@ const STRINGS = {
     adminTotalConnections: 'Total de conexiones',
     errAccountLockedTemporary: 'Cuenta bloqueada. Inténtalo de nuevo después de {time}.',
     errAccountLockedPermanent: 'Cuenta bloqueada permanentemente. Contacta a un administrador para desbloquearla.',
+    hint: 'Pista',
+    hintSlow: 'Reproducción lenta',
+    hintArpeggiate: 'Reproducir arpegiado',
+    hintEliminate: 'Eliminar una opción',
   },
 };
 
@@ -777,6 +785,8 @@ function makeEmptyGroup() {
     showStaff: false,
     firstHeardAt: null,
     guessedAt: null,
+    playCount: 0,
+    eliminated: [],
   };
 }
 
@@ -884,11 +894,14 @@ function updateGuessButtons() {
   if (gameState.exercise === 'chord') {
     document.querySelectorAll('.chord-btn').forEach(btn => {
       const val = btn.dataset.chord;
-      btn.classList.remove('guess-correct', 'guess-wrong');
+      btn.classList.remove('guess-correct', 'guess-wrong', 'guess-eliminated');
       if (guessed) {
         btn.disabled = true;
         if (val === correct) btn.classList.add('guess-correct');
         else if (val === g.userGuess) btn.classList.add('guess-wrong');
+      } else if (g.eliminated && g.eliminated.includes(val)) {
+        btn.disabled = true;
+        btn.classList.add('guess-eliminated');
       } else {
         btn.disabled = lockedByPlayback;
       }
@@ -900,7 +913,7 @@ function updateGuessButtons() {
     const allowed = gameState.allowedScales || [];
     document.querySelectorAll('.scale-btn').forEach(btn => {
       const val = btn.dataset.scale;
-      btn.classList.remove('guess-correct', 'guess-wrong', 'guess-disabled');
+      btn.classList.remove('guess-correct', 'guess-wrong', 'guess-disabled', 'guess-eliminated');
       if (!allowed.includes(val)) {
         btn.disabled = true;
         btn.classList.add('guess-disabled');
@@ -910,6 +923,9 @@ function updateGuessButtons() {
         btn.disabled = true;
         if (val === correct) btn.classList.add('guess-correct');
         else if (val === g.userGuess) btn.classList.add('guess-wrong');
+      } else if (g.eliminated && g.eliminated.includes(val)) {
+        btn.disabled = true;
+        btn.classList.add('guess-eliminated');
       } else {
         btn.disabled = lockedByPlayback;
       }
@@ -920,7 +936,7 @@ function updateGuessButtons() {
   const allowed = gameState.allowedIntervals || [];
   document.querySelectorAll('.guess-btn').forEach(btn => {
     const val = btn.dataset.interval;
-    btn.classList.remove('guess-correct', 'guess-wrong', 'guess-disabled');
+    btn.classList.remove('guess-correct', 'guess-wrong', 'guess-disabled', 'guess-eliminated');
     if (!allowed.includes(parseInt(val, 10))) {
       btn.disabled = true;
       btn.classList.add('guess-disabled');
@@ -930,6 +946,9 @@ function updateGuessButtons() {
       btn.disabled = true;
       if (val === correct) btn.classList.add('guess-correct');
       else if (val === g.userGuess) btn.classList.add('guess-wrong');
+    } else if (g.eliminated && g.eliminated.includes(val)) {
+      btn.disabled = true;
+      btn.classList.add('guess-eliminated');
     } else {
       btn.disabled = lockedByPlayback;
     }
@@ -940,6 +959,7 @@ function updateAllButtons() {
   updateGameButtons();
   updateGuessButtons();
   updateStaff();
+  updateHintState();
 }
 
 const staffEl = document.getElementById('staff');
@@ -1127,9 +1147,11 @@ async function playCurrentGroup() {
     gameState.currentAudio.pause();
     gameState.currentAudio = null;
   }
+  stopHintAudio();
   const myGen = ++gameState.playGen;
   gameState.isPlaying = true;
   gameState.guessUnlocked = false;
+  gameState.groups[gameState.currentIndex].playCount++;
   updateAllButtons();
   try {
     const g = gameState.groups[gameState.currentIndex];
@@ -1280,6 +1302,126 @@ document.querySelectorAll('.chord-btn').forEach(btn => {
 document.querySelectorAll('.scale-btn').forEach(btn => {
   btn.addEventListener('click', () => handleGuess(btn.dataset.scale));
 });
+
+// ---- Hint system --------------------------------------------------------
+
+let hintAudio = null;
+
+function stopHintAudio() {
+  if (hintAudio) {
+    hintAudio.pause();
+    hintAudio = null;
+  }
+}
+
+const hintContainerEl = document.getElementById('hint-container');
+const hintBtnEl       = document.getElementById('hint-btn');
+const hintMenuEl      = document.getElementById('hint-menu');
+const hintSlowEl      = document.getElementById('hint-slow');
+const hintArpEl       = document.getElementById('hint-arpeggiate');
+const hintElimEl      = document.getElementById('hint-eliminate');
+
+function activeOptionCount() {
+  if (gameState.exercise === 'chord') return (gameState.allowedChords || []).length;
+  if (gameState.exercise === 'scale') return (gameState.allowedScales || []).length;
+  return (gameState.allowedIntervals || []).length;
+}
+
+function updateHintState() {
+  if (!hintContainerEl) return;
+  const g = gameState.groups[gameState.currentIndex];
+  const show = g.playCount >= 2 && g.userGuess == null;
+  hintContainerEl.hidden = !show;
+  if (!show) {
+    hintMenuEl.hidden = true;
+    hintBtnEl.setAttribute('aria-expanded', 'false');
+    return;
+  }
+  hintSlowEl.hidden = gameState.exercise === 'chord';
+  hintArpEl.hidden  = gameState.exercise !== 'chord';
+  hintElimEl.disabled = (activeOptionCount() - g.eliminated.length) <= 2;
+}
+
+hintBtnEl.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const open = !hintMenuEl.hidden;
+  hintMenuEl.hidden = open;
+  hintBtnEl.setAttribute('aria-expanded', String(!open));
+});
+
+document.addEventListener('click', (e) => {
+  if (hintContainerEl && !hintContainerEl.contains(e.target)) {
+    hintMenuEl.hidden = true;
+    if (hintBtnEl) hintBtnEl.setAttribute('aria-expanded', 'false');
+  }
+});
+
+async function playHintAudio(url) {
+  stopCurrentAudio();
+  stopHintAudio();
+  hintMenuEl.hidden = true;
+  hintBtnEl.setAttribute('aria-expanded', 'false');
+  const audio = new Audio(url);
+  hintAudio = audio;
+  try {
+    await new Promise((resolve) => {
+      audio.addEventListener('ended', resolve);
+      audio.addEventListener('error', resolve);
+      audio.addEventListener('pause', resolve);
+      audio.play().catch(resolve);
+    });
+  } finally {
+    if (hintAudio === audio) hintAudio = null;
+    URL.revokeObjectURL(url);
+  }
+}
+
+async function doSlowReplay() {
+  const g = gameState.groups[gameState.currentIndex];
+  if (!g.notes) return;
+  const params = new URLSearchParams({ type: gameState.exercise, notes: g.notes.join(',') });
+  if (gameState.exercise === 'interval') {
+    const t = document.getElementById('tempo-number');
+    params.set('tempo', t ? t.value : '120');
+  } else if (gameState.exercise === 'scale') {
+    const t = document.getElementById('scale-tempo-number');
+    params.set('tempo', t ? t.value : '160');
+  }
+  const r = await fetch(`/hint?${params}`);
+  const blob = await r.blob();
+  await playHintAudio(URL.createObjectURL(blob));
+}
+
+async function doArpeggiate() {
+  const g = gameState.groups[gameState.currentIndex];
+  if (!g.notes) return;
+  const params = new URLSearchParams({ type: 'chord', notes: g.notes.join(',') });
+  const r = await fetch(`/hint?${params}`);
+  const blob = await r.blob();
+  await playHintAudio(URL.createObjectURL(blob));
+}
+
+function doEliminate() {
+  const g = gameState.groups[gameState.currentIndex];
+  if (!g.correctAnswer) return;
+  let pool;
+  if (gameState.exercise === 'chord') {
+    pool = (gameState.allowedChords || []).filter(v => v !== g.correctAnswer && !g.eliminated.includes(v));
+  } else if (gameState.exercise === 'scale') {
+    pool = (gameState.allowedScales || []).filter(v => v !== g.correctAnswer && !g.eliminated.includes(v));
+  } else {
+    pool = (gameState.allowedIntervals || []).map(String).filter(v => v !== String(g.correctAnswer) && !g.eliminated.includes(v));
+  }
+  if (!pool.length) return;
+  g.eliminated.push(pool[Math.floor(Math.random() * pool.length)]);
+  hintMenuEl.hidden = true;
+  hintBtnEl.setAttribute('aria-expanded', 'false');
+  updateAllButtons();
+}
+
+hintSlowEl.addEventListener('click', () => doSlowReplay());
+hintArpEl.addEventListener('click', () => doArpeggiate());
+hintElimEl.addEventListener('click', () => doEliminate());
 
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 function midiToName(midi) {
