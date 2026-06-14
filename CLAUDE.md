@@ -141,7 +141,7 @@ The three existing exercises (interval, chord, scale) all follow this pattern. T
 
 ### `static/index.html`
 - [ ] Add an `<a class="exercise-item">` tile in `#view-home`'s exercise-list, routing to `/<exercise>-recognition`.
-- [ ] Add a `<section class="card view" id="view-<exercise>" hidden>` config view — Game mode (Free/Timed/Streak), exercise-specific config, allowed-items toggles, and a Start play-btn routed to `/<exercise>-recognition/play`.
+- [ ] Add a `<section class="card view" id="view-<exercise>" hidden>` config view — exercise-specific config and allowed-items toggles first, then Game mode (Free/Timed/Streak) last, then the Start play-btn. **Game mode is always the last field before the Start button** — this order is a UI constraint that applies to every exercise config view.
 - [ ] Add a `.<exercise>-grid` of guess buttons inside `#view-game`, hidden by default, alongside `#interval-answers` / `#chord-answers` / `#scale-answers`. Each button: `data-<exercise>="<value>"`.
 
 ### `static/app.js`
@@ -171,6 +171,7 @@ If any step is missed the app still partly works but breaks subtly — e.g. forg
 
 ## Other recurring patterns
 
+- **Config view field order** — in every exercise config view, exercise-specific options (allowed items, tempo, direction, etc.) come first; **Game mode (Free/Timed/Streak) is always the last field, immediately above the Start button**. Never place Game mode at the top.
 - **Adding a new setting** — `gatherSettings()` writes it, `applySettings()` reads it, and the change handler near the bottom of `app.js` schedules a save. All three must be touched.
 - **Adding a new i18n string** — append to BOTH `en` and `es` blocks in `STRINGS`. Use a `data-i18n="key"` attribute in HTML (or call `STRINGS[lang][key]` in JS).
 - **Routes shared across exercises** (`view-game` and `view-results`) — their back / finish buttons have their `data-route` rewritten dynamically by `syncExerciseUI()`. Don't hard-code per-exercise paths into those views.
