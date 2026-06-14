@@ -90,6 +90,7 @@ const STRINGS = {
     modeStreak: 'Streak',
     chordName: 'Chords',
     chordDesc: 'Identify the chord type',
+    allowedChords: 'Allowed chords',
     chordMajor: 'Major',
     chordMinor: 'Minor',
     chordAugmented: 'Augmented',
@@ -270,6 +271,7 @@ const STRINGS = {
     modeStreak: 'Racha',
     chordName: 'Acordes',
     chordDesc: 'Identifica el tipo de acorde',
+    allowedChords: 'Acordes permitidos',
     chordMajor: 'Mayor',
     chordMinor: 'Menor',
     chordAugmented: 'Aumentado',
@@ -644,6 +646,27 @@ function captureAllowedScales() {
   return out.length ? out : SCALE_KEYS.slice();
 }
 
+const CHORD_KEYS = ['major', 'minor', 'augmented', 'diminished'];
+
+function captureAllowedChords() {
+  const out = [];
+  document.querySelectorAll('.chord-toggle[aria-pressed="true"]').forEach(btn => {
+    if (btn.dataset.chord) out.push(btn.dataset.chord);
+  });
+  return out.length ? out : CHORD_KEYS.slice();
+}
+
+document.querySelectorAll('.chord-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const isOn = btn.getAttribute('aria-pressed') === 'true';
+    if (isOn) {
+      const onCount = document.querySelectorAll('.chord-toggle[aria-pressed="true"]').length;
+      if (onCount <= 2) return;
+    }
+    btn.setAttribute('aria-pressed', isOn ? 'false' : 'true');
+  });
+});
+
 document.querySelectorAll('.interval-toggle').forEach(btn => {
   btn.addEventListener('click', () => {
     const isOn = btn.getAttribute('aria-pressed') === 'true';
@@ -755,6 +778,7 @@ function resetGameState() {
   gameState.suppressUpdate = false;
   gameState.allowedIntervals = captureAllowedIntervals();
   gameState.allowedScales = captureAllowedScales();
+  gameState.allowedChords = captureAllowedChords();
   gameState.score = { correct: 0, wrong: 0 };
   gameState.startTime = Date.now();
   gameState.playMode = capturePlayMode();
@@ -1102,7 +1126,9 @@ async function playCurrentGroup() {
         // Chords always play simultaneously; no tempo, no per-note unlock delay.
         g.mode = 'harmonic';
         g.unlockOffset = 0;
-        r = await fetch('/chord/exercise');
+        const allowed = gameState.allowedChords || captureAllowedChords();
+        const chordParams = new URLSearchParams({ allowed: allowed.join(',') });
+        r = await fetch(`/chord/exercise?${chordParams}`);
         const chordHeader = r.headers.get('X-Chord');
         if (chordHeader) {
           g.chord = chordHeader;
@@ -1790,6 +1816,9 @@ function gatherSettings() {
     },
     chord: {
       playMode: document.querySelector('input[name="chord-play-mode"]:checked')?.value || 'free',
+      allowedChords: Array.from(
+        document.querySelectorAll('.chord-toggle[aria-pressed="true"]')
+      ).map(b => b.dataset.chord).filter(Boolean),
     },
     scale: {
       playMode: document.querySelector('input[name="scale-play-mode"]:checked')?.value || 'free',
@@ -1830,6 +1859,11 @@ function applySettings(s) {
     if (s.chord && s.chord.playMode) {
       const r = document.querySelector(`input[name="chord-play-mode"][value="${s.chord.playMode}"]`);
       if (r) r.checked = true;
+    }
+    if (s.chord && Array.isArray(s.chord.allowedChords)) {
+      document.querySelectorAll('.chord-toggle').forEach(btn => {
+        btn.setAttribute('aria-pressed', s.chord.allowedChords.includes(btn.dataset.chord) ? 'true' : 'false');
+      });
     }
     const sc = s.scale || {};
     [['scale-play-mode', sc.playMode], ['scale-direction', sc.direction]].forEach(([name, value]) => {
@@ -1893,6 +1927,9 @@ document.querySelectorAll('.interval-toggle').forEach(btn => {
   btn.addEventListener('click', () => setTimeout(scheduleSettingsSave, 0));
 });
 document.querySelectorAll('.scale-toggle').forEach(btn => {
+  btn.addEventListener('click', () => setTimeout(scheduleSettingsSave, 0));
+});
+document.querySelectorAll('.chord-toggle').forEach(btn => {
   btn.addEventListener('click', () => setTimeout(scheduleSettingsSave, 0));
 });
 // Tempo +/− buttons mutate the number input but don't fire its 'change'.
