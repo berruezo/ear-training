@@ -194,6 +194,14 @@ If any step is missed the app still partly works but breaks subtly — e.g. forg
 
 The app is publicly hosted at **<https://ear-training.berruezo.es>**. There is no CI/CD pipeline — a manual deploy step (out of scope for this repo) is needed after pushing changes. When verifying a change end-to-end, prefer the local server; treat the public URL as the canonical live reference.
 
+**Deploy (server):** the server has no development work of its own. `docker-compose.yml` sets `build: https://github.com/berruezo/ear-training.git#main`, so Docker clones `main` from GitHub and builds the image from the repo's `Dockerfile`. The deploy is one command, run from the server directory that holds `docker-compose.yml` and `data/`:
+
+```bash
+docker compose up -d --build
+```
+
+Consequences: the server must have pushed `main` before deploying (local uncommitted changes are never built), and `docker compose up --build` on a dev machine also builds from GitHub, not the working tree. Use `docker compose build` only after pushing. `data/` is a bind mount (`./data:/app/data`) that stays on the server and is never committed.
+
 In production the app runs inside Docker (`docker-compose.yml` + `Dockerfile`). A separate Caddy instance acts as the HTTPS reverse proxy and terminates TLS. The two stacks share a Docker network: `docker-compose.yml` declares `caddy_default` as an external network and attaches the app service to it, so Caddy can reach the container by service name on port 8080. The Caddy stack is managed independently of this repo.
 
 ## Running locally for verification

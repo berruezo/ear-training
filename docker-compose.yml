@@ -1,6 +1,6 @@
 services:
   ear-training:
-    build: .
+    build: https://github.com/berruezo/ear-training.git#main
     container_name: ear-training
     restart: unless-stopped
     ports:
