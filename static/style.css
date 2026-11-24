@@ -464,8 +464,10 @@ main {
   gap: 10px;
 }
 .game-controls .play-btn { flex: 1; margin-top: 0; }
-/* Play cadence: full-width primary button below the Play/Prev/Next row. */
-.cadence-btn { width: 100%; margin-top: 10px; }
+/* Play cadence: full-width primary button below the Play/Prev/Next row, shorter
+   than Play. Grouped with the row so the card's 22px gap doesn't apply between them. */
+.game-controls-stack { display: flex; flex-direction: column; gap: 8px; }
+.play-btn.cadence-btn { width: 100%; margin-top: 0; min-height: 40px; font-size: 0.95rem; }
 .cadence-btn[hidden] { display: none; }
 .nav-btn {
   display: inline-flex;
