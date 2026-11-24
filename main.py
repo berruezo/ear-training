@@ -2,6 +2,7 @@ import collections
 import hashlib
 import http.server
 import io
+import ipaddress
 import json
 import os
 import random
@@ -16,7 +17,7 @@ from urllib.parse import parse_qs, urlparse
 import fluidsynth
 import numpy as np
 
-VERSION = "0.11.2"
+VERSION = "0.11.3"
 
 SOUNDFONT = "/usr/share/sounds/sf2/TimGM6mb.sf2"
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
@@ -661,6 +662,30 @@ class Handler(http.server.BaseHTTPRequestHandler):
             save_users(users)
         self._send_json(200, {"ok": True, "username": key})
 
+    def _client_ip(self) -> str:
+        """Real visitor IP for the connections log.
+
+        Behind the Caddy reverse proxy the TCP peer is the proxy's container IP,
+        so trust X-Forwarded-For only when the direct peer is loopback or a
+        private (Docker/LAN) address. Use the rightmost entry: the proxy appends
+        the address it saw, while leftmost entries are client-supplied.
+        """
+        peer = self.client_address[0]
+        try:
+            addr = ipaddress.ip_address(peer)
+        except ValueError:
+            return peer
+        if addr.is_loopback or addr.is_private:
+            forwarded = self.headers.get("X-Forwarded-For") or ""
+            hops = [h.strip() for h in forwarded.split(",") if h.strip()]
+            if hops:
+                try:
+                    ipaddress.ip_address(hops[-1])
+                    return hops[-1]
+                except ValueError:
+                    pass
+        return peer
+
     def _handle_admin_connections(self) -> None:
         if self._current_user() != ADMIN_USERNAME:
             return self._send_json(403, {"error": "forbidden"})
@@ -862,7 +887,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if filename == "index.html":
                 entry = {
                     "ts": time.time(),
-                    "ip": self.client_address[0],
+                    "ip": self._client_ip(),
                     "path": parsed.path,
                     "user": self._current_user(),
                     "ua": (self.headers.get("User-Agent") or "")[:200],

@@ -188,6 +188,7 @@ If any step is missed the app still partly works but breaks subtly — e.g. forg
 - **Adding a new i18n string** — append to BOTH `en` and `es` blocks in `STRINGS`. Use a `data-i18n="key"` attribute in HTML (or call `STRINGS[lang][key]` in JS).
 - **Routes shared across exercises** (`view-game` and `view-results`) — their back / finish buttons have their `data-route` rewritten dynamically by `syncExerciseUI()`. Don't hard-code per-exercise paths into those views.
 - **Admin** — username literally `"admin"` (constant `ADMIN_USERNAME`). Exempt from permanent lock. Sees `/admin` and `/debug` entries on the home view.
+- **Connections log IP** — `Handler._client_ip()` gives the visitor IP recorded in the page-view log (`/api/admin/connections`). In production the TCP peer is the Caddy container (e.g. `172.22.0.5`), so the function reads `X-Forwarded-For` only when the direct peer is loopback or a private address, and uses the rightmost entry (the one Caddy appended). Requests from a public peer ignore the header. Entries logged before 0.11.3 still hold the proxy IP.
 - **Theme + language flash prevention** — the inline `<script>` in `index.html`'s `<head>` applies `data-theme` synchronously before CSS loads. Don't move it.
 
 ## Production deployment
