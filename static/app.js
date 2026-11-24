@@ -208,6 +208,7 @@ const STRINGS = {
     hintSlow: 'Slow replay',
     hintArpeggiate: 'Play arpeggiated',
     hintRootPosition: 'Root position',
+    hintCadence: 'Play cadence',
     hintSong: 'Song mnemonic',
     hintEliminate: 'Eliminate an option',
   },
@@ -414,6 +415,7 @@ const STRINGS = {
     hintSlow: 'Reproducción lenta',
     hintArpeggiate: 'Reproducir arpegiado',
     hintRootPosition: 'Posición fundamental',
+    hintCadence: 'Reproducir cadencia',
     hintSong: 'Canción mnemónica',
     hintEliminate: 'Eliminar una opción',
   },
@@ -1450,7 +1452,20 @@ const hintContainerEl  = document.getElementById('hint-container');
 const hintSlowEl       = document.getElementById('hint-slow');
 const hintArpEl        = document.getElementById('hint-arpeggiate');
 const hintRootEl       = document.getElementById('hint-root');
+const hintCadenceEl    = document.getElementById('hint-cadence');
 const hintSongEl       = document.getElementById('hint-song');
+
+// Chords with a tonal direction and the chord they resolve to. Value = semitones
+// from the played chord's root up to the resolution root; the resolution is always
+// a major triad (e.g. G7 -> C major, B half-dim 7th -> C major). The server has no
+// knowledge of this table: the cadence is built here from g.rootNotes[0] and played
+// through /hint (type=chord, simultaneous=1).
+const CHORD_CADENCE_OFFSET = {
+  dominant7: 5,
+  sensible7: 1,
+  diminished7: 1,
+  diminished: 1,
+};
 const hintSongLabelEl  = document.getElementById('hint-song-label');
 const hintElimEl       = document.getElementById('hint-eliminate');
 
@@ -1471,6 +1486,9 @@ function updateHintState() {
   hintSlowEl.hidden = gameState.exercise === 'chord';
   hintArpEl.hidden  = gameState.exercise !== 'chord';
   hintRootEl.hidden = revealed || !(gameState.exercise === 'chord' && gameState.chordInversions);
+  // Cadence only exists for resolving chords, and only once the answer is revealed.
+  hintCadenceEl.hidden = !(revealed && gameState.exercise === 'chord'
+    && g.correctAnswer in CHORD_CADENCE_OFFSET && g.rootNotes);
   const ic = parseInt(g.correctAnswer, 10);
   hintSongEl.hidden = revealed || gameState.exercise !== 'interval' || ic === 0 || isNaN(ic);
   // Eliminate stays visible but is disabled once revealed or when only 2 options remain.
@@ -1530,6 +1548,20 @@ async function doRootPosition() {
   await playHintAudio(URL.createObjectURL(blob));
 }
 
+// Plays the chord the played chord resolves to (major triad, root-position, simultaneous).
+async function doCadence() {
+  const g = gameState.groups[gameState.currentIndex];
+  const offset = CHORD_CADENCE_OFFSET[g.correctAnswer];
+  if (offset === undefined || !g.rootNotes) return;
+  const target = g.rootNotes[0] + offset;
+  const notes = [target, target + 4, target + 7];
+  const params = new URLSearchParams({ type: 'chord', notes: notes.join(','), simultaneous: '1' });
+  const r = await fetch(`/hint?${params}`);
+  if (!r.ok) return;
+  const blob = await r.blob();
+  await playHintAudio(URL.createObjectURL(blob));
+}
+
 function doEliminate() {
   const g = gameState.groups[gameState.currentIndex];
   if (!g.correctAnswer) return;
@@ -1577,6 +1609,7 @@ hintContainerEl.addEventListener('click', (e) => {
 
 hintArpEl.addEventListener('click', () => doArpeggiate());
 hintRootEl.addEventListener('click', () => doRootPosition());
+hintCadenceEl.addEventListener('click', () => doCadence());
 hintSongEl.addEventListener('click', () => doSongMnemonic());
 hintElimEl.addEventListener('click', () => doEliminate());
 
