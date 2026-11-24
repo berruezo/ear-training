@@ -1548,13 +1548,76 @@ async function doRootPosition() {
   await playHintAudio(URL.createObjectURL(blob));
 }
 
-// Plays the chord the played chord resolves to (major triad, root-position, simultaneous).
+// Octave instance of pitch class `pc` nearest to MIDI note `midi` (ties resolve downward).
+function nearestNoteInPc(midi, pc) {
+  let d = (((pc - midi) % 12) + 12) % 12;
+  if (d > 6) d -= 12;
+  return midi + d;
+}
+
+// Voice-leads the played notes (any inversion) into the major triad whose root is
+// `resRoot`. Each voice moves to the nearest octave of one of the triad's tones.
+// Constraints: every triad tone is present; with 4 voices the bass tone is doubled
+// (cadential 6/4 style, e.g. G-B-D-F -> G-C-E-G, C-E-G-C after an inversion, etc.);
+// total motion is minimised. Voice-leading rules enforced when possible: voices keep
+// their order (no crossing), no parallel fifths/octaves/unisons, no hidden
+// fifths/octaves in the outer voices. If no assignment satisfies every rule, the rules
+// are dropped and the minimum-motion assignment is used.
+function voiceLeadCadence(played, resRoot) {
+  const src = [...played].sort((a, b) => a - b);
+  const n = src.length;
+  const pcs = [resRoot, resRoot + 4, resRoot + 7].map(x => ((x % 12) + 12) % 12);
+  const isPerfect = (iv) => { const m = ((iv % 12) + 12) % 12; return m === 0 || m === 7; };
+
+  const search = (checkRules) => {
+    let best = null;
+    const total = Math.pow(3, n);
+    for (let c = 0; c < total; c++) {
+      const choice = [];
+      let x = c;
+      for (let i = 0; i < n; i++) { choice.push(x % 3); x = Math.floor(x / 3); }
+      const counts = [0, 0, 0];
+      choice.forEach(k => counts[k]++);
+      if (counts.some(k => k < 1)) continue;
+
+      const tgt = src.map((s, i) => nearestNoteInPc(s, pcs[choice[i]]));
+      // With 4 voices exactly one tone is doubled; prefer doubling the bass tone.
+      const doubled = counts.indexOf(2);
+      const bassPenalty = (n >= 4 && choice[0] !== doubled) ? 3 : 0;
+      if (checkRules) {
+        let ok = true;
+        for (let i = 1; i < n && ok; i++) if (tgt[i] < tgt[i - 1]) ok = false; // crossing
+        for (let i = 0; i < n && ok; i++) {
+          for (let j = i + 1; j < n && ok; j++) {
+            const di = tgt[i] - src[i];
+            const dj = tgt[j] - src[j];
+            const s = src[j] - src[i];
+            const e = tgt[j] - tgt[i];
+            const similar = di !== 0 && dj !== 0 && Math.sign(di) === Math.sign(dj);
+            if (similar && isPerfect(s) && isPerfect(e) && ((s % 12) + 12) % 12 === ((e % 12) + 12) % 12) ok = false; // parallel
+            const outer = i === 0 && j === n - 1;
+            if (outer && similar && !isPerfect(s) && isPerfect(e)) ok = false; // hidden
+          }
+        }
+        if (!ok) continue;
+      }
+      const cost = bassPenalty + tgt.reduce((sum, t, i) => sum + Math.abs(t - src[i]), 0);
+      if (!best || cost < best.cost) best = { tgt, cost };
+    }
+    return best;
+  };
+
+  const best = search(true) || search(false);
+  return best ? best.tgt : src;
+}
+
+// Plays the chord the played chord resolves to: a major triad, voice-led from the
+// played notes (see voiceLeadCadence), simultaneous, via /hint.
 async function doCadence() {
   const g = gameState.groups[gameState.currentIndex];
   const offset = CHORD_CADENCE_OFFSET[g.correctAnswer];
-  if (offset === undefined || !g.rootNotes) return;
-  const target = g.rootNotes[0] + offset;
-  const notes = [target, target + 4, target + 7];
+  if (offset === undefined || !g.rootNotes || !g.notes) return;
+  const notes = voiceLeadCadence(g.notes, g.rootNotes[0] + offset);
   const params = new URLSearchParams({ type: 'chord', notes: notes.join(','), simultaneous: '1' });
   const r = await fetch(`/hint?${params}`);
   if (!r.ok) return;
