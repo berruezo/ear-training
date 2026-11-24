@@ -1031,6 +1031,8 @@ function updateAllButtons() {
 }
 
 const staffEl = document.getElementById('staff');
+const staffPlayedEl = document.getElementById('staff-played');
+const staffCEl = document.getElementById('staff-c');
 
 // MIDI -> VexFlow note key (e.g. 60 -> 'c/4', 61 -> 'c#/4').
 const VF_NOTE_LETTERS = ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'];
@@ -1099,9 +1101,11 @@ function spellChordNotes(rootMidi, chordType) {
   });
 }
 
-function renderStaff(notes, mode, chordType) {
-  if (!staffEl || !window.VexFlow || !notes || notes.length < 2) return;
-  staffEl.innerHTML = '';
+// Renders notes into `target` (a container element). Chords pass their type so
+// the spelling is stacked thirds; the caller chooses the target.
+function renderStaff(target, notes, mode, chordType) {
+  if (!target || !window.VexFlow || !notes || notes.length < 2) return;
+  target.innerHTML = '';
 
   const VF = window.VexFlow;
   const { Renderer, Stave, StaveNote, Accidental, Formatter } = VF;
@@ -1140,7 +1144,7 @@ function renderStaff(notes, mode, chordType) {
   const belowTotal = Math.max(VF_SPACE_BELOW, belowLedger + NOTEHEAD_PAD);
   const height = staveY + VF_SPACE_ABOVE + VF_STAFF_HEIGHT + belowTotal;
 
-  const renderer = new Renderer(staffEl, Renderer.Backends.SVG);
+  const renderer = new Renderer(target, Renderer.Backends.SVG);
   // Width must grow with the number of notes so a scale (8–26 notes) gets
   // enough horizontal room for VexFlow's Formatter to space them legibly.
   // Chords / 2-note intervals still get the original 240 px.
@@ -1149,7 +1153,7 @@ function renderStaff(notes, mode, chordType) {
   renderer.resize(width, height);
   const ctx = renderer.getContext();
   // Match the surrounding text color (works in both light and dark themes).
-  const fg = getComputedStyle(staffEl).color || '#000';
+  const fg = getComputedStyle(target).color || '#000';
   ctx.setFillStyle(fg);
   ctx.setStrokeStyle(fg);
 
@@ -1160,7 +1164,7 @@ function renderStaff(notes, mode, chordType) {
   // VexFlow sets width/height attrs but no viewBox — without a viewBox,
   // CSS scaling (max-width: 100% + height: auto) clips content. Add one
   // so the whole rendered area scales together.
-  const svgChild = staffEl.querySelector('svg');
+  const svgChild = target.querySelector('svg');
   if (svgChild) {
     svgChild.setAttribute('viewBox', `0 0 ${width} ${height}`);
     svgChild.setAttribute('preserveAspectRatio', 'xMidYMid meet');
@@ -1207,11 +1211,24 @@ function updateStaff() {
   if (!staffEl) return;
   const g = gameState.groups[gameState.currentIndex];
   if (g.userGuess != null && g.notes && g.showStaff) {
-    renderStaff(g.notes, g.mode || 'melodic', g.chord);
+    const mode = g.mode || 'melodic';
+    renderStaff(staffPlayedEl, g.notes, mode, g.chord);
+    // Chords also get the same chord spelled from C (root position, C4),
+    // placed next to the played one. Other exercises show a single staff.
+    const cIntervals = g.chord ? CHORD_INTERVALS[g.chord] : null;
+    if (cIntervals) {
+      renderStaff(staffCEl, cIntervals.map(i => 60 + i), mode, g.chord);
+      staffCEl.hidden = false;
+    } else {
+      staffCEl.hidden = true;
+      staffCEl.innerHTML = '';
+    }
     staffEl.hidden = false;
   } else {
     staffEl.hidden = true;
-    staffEl.innerHTML = '';
+    staffPlayedEl.innerHTML = '';
+    staffCEl.hidden = true;
+    staffCEl.innerHTML = '';
   }
 }
 

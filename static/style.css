@@ -862,6 +862,10 @@ main {
 .staff[hidden] { display: none; }
 .staff { color: var(--text); }
 .staff svg { display: block; max-width: 100%; height: auto; }
+/* Chord view shows two scores side by side: the played chord and the same
+   chord spelled from C. Each cell takes an equal share of the row. */
+.staff-score { flex: 1 1 0; min-width: 0; display: flex; justify-content: center; }
+.staff-score[hidden] { display: none; }
 
 /* Results view */
 #results-content { display: flex; flex-direction: column; gap: 22px; }
