@@ -427,7 +427,24 @@ function applyLanguage(lang) {
   document.title = t.title;
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const k = el.dataset.i18n;
-    if (t[k] !== undefined) el.textContent = t[k];
+    if (t[k] === undefined) return;
+    // A digit followed by U+0338 (combining slash) is drawn as a CSS-slashed
+    // digit (`.slashed`) because fonts render the combining mark poorly.
+    if (t[k].includes('\u0338')) {
+      el.textContent = '';
+      t[k].split(/(.\u0338)/).forEach(part => {
+        if (part.length === 2 && part[1] === '\u0338') {
+          const sp = document.createElement('span');
+          sp.className = 'slashed';
+          sp.textContent = part[0];
+          el.appendChild(sp);
+        } else if (part) {
+          el.appendChild(document.createTextNode(part));
+        }
+      });
+    } else {
+      el.textContent = t[k];
+    }
   });
   document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
     const k = el.dataset.i18nAriaLabel;
