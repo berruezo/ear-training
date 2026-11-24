@@ -318,16 +318,16 @@
       </div>
 
       <div class="chord-grid" id="chord-answers" hidden>
-        <button type="button" class="chord-btn" data-chord="major"><span data-i18n="chordMajor">Major</span></button>
-        <button type="button" class="chord-btn" data-chord="minor"><span data-i18n="chordMinor">Minor</span></button>
-        <button type="button" class="chord-btn" data-chord="augmented"><span data-i18n="chordAugmented">Augmented</span></button>
-        <button type="button" class="chord-btn" data-chord="diminished"><span data-i18n="chordDiminished">Diminished</span></button>
-        <button type="button" class="chord-btn" data-chord="major7"><span data-i18n="chordMajor7">Major 7th</span></button>
-        <button type="button" class="chord-btn" data-chord="dominant7"><span data-i18n="chordDominant7">Dominant 7th</span></button>
-        <button type="button" class="chord-btn" data-chord="minor7"><span data-i18n="chordMinor7">Minor 7th</span></button>
-        <button type="button" class="chord-btn" data-chord="minor_major7"><span data-i18n="chordMinorMajor7">Minor-major 7th</span></button>
-        <button type="button" class="chord-btn" data-chord="half_diminished7"><span data-i18n="chordHalfDiminished7">Half-diminished 7th</span></button>
-        <button type="button" class="chord-btn" data-chord="diminished7"><span data-i18n="chordDiminished7">Diminished 7th</span></button>
+        <button type="button" class="chord-btn" data-chord="major"><span class="chord-name" data-i18n="chordMajor">Major</span><span class="chord-intervals" data-i18n="chordMajorIntervals">M3 · P5</span></button>
+        <button type="button" class="chord-btn" data-chord="minor"><span class="chord-name" data-i18n="chordMinor">Minor</span><span class="chord-intervals" data-i18n="chordMinorIntervals">m3 · P5</span></button>
+        <button type="button" class="chord-btn" data-chord="augmented"><span class="chord-name" data-i18n="chordAugmented">Augmented</span><span class="chord-intervals" data-i18n="chordAugmentedIntervals">M3 · A5</span></button>
+        <button type="button" class="chord-btn" data-chord="diminished"><span class="chord-name" data-i18n="chordDiminished">Diminished</span><span class="chord-intervals" data-i18n="chordDiminishedIntervals">m3 · d5</span></button>
+        <button type="button" class="chord-btn" data-chord="major7"><span class="chord-name" data-i18n="chordMajor7">Major 7th</span><span class="chord-intervals" data-i18n="chordMajor7Intervals">M3 · P5 · M7</span></button>
+        <button type="button" class="chord-btn" data-chord="dominant7"><span class="chord-name" data-i18n="chordDominant7">Dominant 7th</span><span class="chord-intervals" data-i18n="chordDominant7Intervals">M3 · P5 · m7</span></button>
+        <button type="button" class="chord-btn" data-chord="minor7"><span class="chord-name" data-i18n="chordMinor7">Minor 7th</span><span class="chord-intervals" data-i18n="chordMinor7Intervals">m3 · P5 · m7</span></button>
+        <button type="button" class="chord-btn" data-chord="minor_major7"><span class="chord-name" data-i18n="chordMinorMajor7">Minor-major 7th</span><span class="chord-intervals" data-i18n="chordMinorMajor7Intervals">m3 · P5 · M7</span></button>
+        <button type="button" class="chord-btn" data-chord="half_diminished7"><span class="chord-name" data-i18n="chordHalfDiminished7">Half-diminished 7th</span><span class="chord-intervals" data-i18n="chordHalfDiminished7Intervals">m3 · d5 · m7</span></button>
+        <button type="button" class="chord-btn" data-chord="diminished7"><span class="chord-name" data-i18n="chordDiminished7">Diminished 7th</span><span class="chord-intervals" data-i18n="chordDiminished7Intervals">m3 · d5 · d7</span></button>
       </div>
 
       <div class="scale-grid" id="scale-answers" hidden>
@@ -391,16 +391,16 @@
       <section class="field">
         <span class="field-label" data-i18n="allowedChords">Allowed chords</span>
         <div class="chord-config-grid chord-toggles">
-          <button type="button" class="chord-toggle" data-chord="major"      aria-pressed="true"><span  data-i18n="chordMajor">Major</span></button>
-          <button type="button" class="chord-toggle" data-chord="minor"      aria-pressed="true"><span  data-i18n="chordMinor">Minor</span></button>
-          <button type="button" class="chord-toggle" data-chord="augmented"  aria-pressed="true"><span  data-i18n="chordAugmented">Augmented</span></button>
-          <button type="button" class="chord-toggle" data-chord="diminished" aria-pressed="true"><span  data-i18n="chordDiminished">Diminished</span></button>
-          <button type="button" class="chord-toggle" data-chord="major7" aria-pressed="false"><span data-i18n="chordMajor7">Major 7th</span></button>
-          <button type="button" class="chord-toggle" data-chord="dominant7" aria-pressed="false"><span data-i18n="chordDominant7">Dominant 7th</span></button>
-          <button type="button" class="chord-toggle" data-chord="minor7" aria-pressed="false"><span data-i18n="chordMinor7">Minor 7th</span></button>
-          <button type="button" class="chord-toggle" data-chord="minor_major7" aria-pressed="false"><span data-i18n="chordMinorMajor7">Minor-major 7th</span></button>
-          <button type="button" class="chord-toggle" data-chord="half_diminished7" aria-pressed="false"><span data-i18n="chordHalfDiminished7">Half-diminished 7th</span></button>
-          <button type="button" class="chord-toggle" data-chord="diminished7" aria-pressed="false"><span data-i18n="chordDiminished7">Diminished 7th</span></button>
+          <button type="button" class="chord-toggle" data-chord="major"      aria-pressed="true"><span class="chord-name" data-i18n="chordMajor">Major</span><span class="chord-intervals" data-i18n="chordMajorIntervals">M3 · P5</span></button>
+          <button type="button" class="chord-toggle" data-chord="minor"      aria-pressed="true"><span class="chord-name" data-i18n="chordMinor">Minor</span><span class="chord-intervals" data-i18n="chordMinorIntervals">m3 · P5</span></button>
+          <button type="button" class="chord-toggle" data-chord="augmented"  aria-pressed="true"><span class="chord-name" data-i18n="chordAugmented">Augmented</span><span class="chord-intervals" data-i18n="chordAugmentedIntervals">M3 · A5</span></button>
+          <button type="button" class="chord-toggle" data-chord="diminished" aria-pressed="true"><span class="chord-name" data-i18n="chordDiminished">Diminished</span><span class="chord-intervals" data-i18n="chordDiminishedIntervals">m3 · d5</span></button>
+          <button type="button" class="chord-toggle" data-chord="major7" aria-pressed="false"><span class="chord-name" data-i18n="chordMajor7">Major 7th</span><span class="chord-intervals" data-i18n="chordMajor7Intervals">M3 · P5 · M7</span></button>
+          <button type="button" class="chord-toggle" data-chord="dominant7" aria-pressed="false"><span class="chord-name" data-i18n="chordDominant7">Dominant 7th</span><span class="chord-intervals" data-i18n="chordDominant7Intervals">M3 · P5 · m7</span></button>
+          <button type="button" class="chord-toggle" data-chord="minor7" aria-pressed="false"><span class="chord-name" data-i18n="chordMinor7">Minor 7th</span><span class="chord-intervals" data-i18n="chordMinor7Intervals">m3 · P5 · m7</span></button>
+          <button type="button" class="chord-toggle" data-chord="minor_major7" aria-pressed="false"><span class="chord-name" data-i18n="chordMinorMajor7">Minor-major 7th</span><span class="chord-intervals" data-i18n="chordMinorMajor7Intervals">m3 · P5 · M7</span></button>
+          <button type="button" class="chord-toggle" data-chord="half_diminished7" aria-pressed="false"><span class="chord-name" data-i18n="chordHalfDiminished7">Half-diminished 7th</span><span class="chord-intervals" data-i18n="chordHalfDiminished7Intervals">m3 · d5 · m7</span></button>
+          <button type="button" class="chord-toggle" data-chord="diminished7" aria-pressed="false"><span class="chord-name" data-i18n="chordDiminished7">Diminished 7th</span><span class="chord-intervals" data-i18n="chordDiminished7Intervals">m3 · d5 · d7</span></button>
         </div>
       </section>
 

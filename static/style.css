@@ -571,6 +571,19 @@ main {
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.06s ease, opacity 0.15s ease;
 }
+.chord-btn, .chord-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.chord-intervals {
+  font-size: 0.72rem;
+  font-weight: 400;
+  opacity: 0.7;
+  line-height: 1.2;
+}
 .chord-btn:hover:not(:disabled) { background: var(--accent-soft); border-color: var(--border-strong); }
 .chord-btn:active:not(:disabled) { transform: translateY(1px); }
 .chord-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); border-color: var(--accent); }
