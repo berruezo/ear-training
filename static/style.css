@@ -464,6 +464,9 @@ main {
   gap: 10px;
 }
 .game-controls .play-btn { flex: 1; margin-top: 0; }
+/* Play cadence: full-width primary button below the Play/Prev/Next row. */
+.cadence-btn { width: 100%; margin-top: 10px; }
+.cadence-btn[hidden] { display: none; }
 .nav-btn {
   display: inline-flex;
   align-items: center;

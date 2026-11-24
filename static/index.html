@@ -280,7 +280,6 @@
             <button type="button" class="hint-btn" id="hint-slow" data-i18n-title="hintSlow" title="Slow replay" data-i18n-aria-label="hintSlow" aria-label="Slow replay"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12M6 22h12M7 2c0 5 10 5 10 10s-10 5-10 10M17 2c0 5-10 5-10 10s10 5 10 10"/></svg></button>
             <button type="button" class="hint-btn" id="hint-arpeggiate" data-i18n-title="hintArpeggiate" title="Play arpeggiated" data-i18n-aria-label="hintArpeggiate" aria-label="Play arpeggiated"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="19" x2="20" y2="5" stroke-dasharray="2 3"/><circle cx="5" cy="18" r="2.2" fill="currentColor"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/><circle cx="19" cy="6" r="2.2" fill="currentColor"/></svg></button>
             <button type="button" class="hint-btn" id="hint-root" data-i18n-title="hintRootPosition" title="Root position" data-i18n-aria-label="hintRootPosition" aria-label="Root position"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg></button>
-            <button type="button" class="hint-btn" id="hint-cadence" data-i18n-title="hintCadence" title="Play cadence" data-i18n-aria-label="hintCadence" aria-label="Play cadence"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg></button>
             <button type="button" class="hint-btn" id="hint-song" data-i18n-title="hintSong" title="Song mnemonic" data-i18n-aria-label="hintSong" aria-label="Song mnemonic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></button>
             <button type="button" class="hint-btn" id="hint-eliminate" data-i18n-title="hintEliminate" title="Eliminate an option" data-i18n-aria-label="hintEliminate" aria-label="Eliminate an option"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="8" y1="12" x2="16" y2="12"/></svg></button>
           </div>
@@ -300,6 +299,11 @@
           <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M16 6h2v12h-2V6zm-2 6L5.5 6v12L14 12z"/></svg>
         </button>
       </div>
+
+      <button type="button" id="hint-cadence" class="play-btn cadence-btn" hidden>
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+        <span data-i18n="hintCadence">Play cadence</span>
+      </button>
 
       <div class="guesses interval-grid" id="interval-answers">
         <button type="button" class="guess-btn" data-interval="1"  data-i18n-title="interval1Full"  title="Minor 2nd"><span data-i18n="interval1">m2</span></button>
