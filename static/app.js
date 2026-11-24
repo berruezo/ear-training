@@ -96,22 +96,22 @@ const STRINGS = {
     chordMinor: 'Minor',
     chordAugmented: 'Augmented',
     chordDiminished: 'Diminished',
-    chordMajor7: 'Major 7th',
+    chordMajor7: 'Diatonic 7th',
     chordDominant7: 'Dominant 7th',
     chordMinor7: 'Minor 7th',
     chordMinorMajor7: 'Minor-major 7th',
-    chordHalfDiminished7: 'Half-diminished 7th',
+    chordSensible7: 'Sensible 7th',
     chordDiminished7: 'Diminished 7th',
     chordMajorIntervals: 'PM',
     chordMinorIntervals: 'Pm',
-    chordAugmentedIntervals: 'M3 · A5',
-    chordDiminishedIntervals: 'm3 · d5',
+    chordAugmentedIntervals: 'A5',
+    chordDiminishedIntervals: '5̸',
     chordMajor7Intervals: 'PM M7',
     chordDominant7Intervals: 'PM m7',
     chordMinor7Intervals: 'Pm m7',
     chordMinorMajor7Intervals: 'Pm M7',
-    chordHalfDiminished7Intervals: 'm3 · d5 · m7',
-    chordDiminished7Intervals: 'm3 · d5 · d7',
+    chordSensible7Intervals: '5̸ m7',
+    chordDiminished7Intervals: '7̸',
     chordInversions: 'Inversions',
     chordInversionsLabel: 'Include inversions',
     scaleName: 'Scales',
@@ -302,22 +302,22 @@ const STRINGS = {
     chordMinor: 'Menor',
     chordAugmented: 'Aumentado',
     chordDiminished: 'Disminuido',
-    chordMajor7: 'Mayor 7ª',
-    chordDominant7: 'Dominante 7ª',
-    chordMinor7: 'Menor 7ª',
-    chordMinorMajor7: 'Menor-mayor 7ª',
-    chordHalfDiminished7: 'Semidisminuido 7ª',
-    chordDiminished7: 'Disminuido 7ª',
+    chordMajor7: '7ª Diatónica',
+    chordDominant7: '7ª de Dominante',
+    chordMinor7: '7ª menor',
+    chordMinorMajor7: '7ª menor-mayor',
+    chordSensible7: '7ª de Sensible',
+    chordDiminished7: '7ª Disminuida',
     chordMajorIntervals: 'PM',
     chordMinorIntervals: 'Pm',
-    chordAugmentedIntervals: '3M · 5A',
-    chordDiminishedIntervals: '3m · 5d',
+    chordAugmentedIntervals: '5A',
+    chordDiminishedIntervals: '5̸',
     chordMajor7Intervals: 'PM 7M',
     chordDominant7Intervals: 'PM 7m',
     chordMinor7Intervals: 'Pm 7m',
     chordMinorMajor7Intervals: 'Pm 7M',
-    chordHalfDiminished7Intervals: '3m · 5d · 7m',
-    chordDiminished7Intervals: '3m · 5d · 7d',
+    chordSensible7Intervals: '5̸ 7m',
+    chordDiminished7Intervals: '7̸',
     chordInversions: 'Inversiones',
     chordInversionsLabel: 'Incluir inversiones',
     scaleName: 'Escalas',
@@ -696,7 +696,12 @@ function captureAllowedScales() {
   return out.length ? out : SCALE_KEYS.slice();
 }
 
-const CHORD_KEYS = ['major', 'minor', 'augmented', 'diminished', 'major7', 'dominant7', 'minor7', 'minor_major7', 'half_diminished7', 'diminished7'];
+const CHORD_I18N_KEY = {
+  major: 'chordMajor', minor: 'chordMinor', augmented: 'chordAugmented', diminished: 'chordDiminished',
+  major7: 'chordMajor7', dominant7: 'chordDominant7', minor7: 'chordMinor7',
+  minor_major7: 'chordMinorMajor7', sensible7: 'chordSensible7', diminished7: 'chordDiminished7',
+};
+const CHORD_KEYS = ['major', 'minor', 'augmented', 'diminished', 'major7', 'dominant7', 'minor7', 'minor_major7', 'sensible7', 'diminished7'];
 
 function captureAllowedChords() {
   const out = [];
@@ -1041,7 +1046,7 @@ const CHORD_INTERVALS = {
   dominant7:        [0, 4, 7, 10],
   minor7:           [0, 3, 7, 10],
   minor_major7:     [0, 3, 7, 11],
-  half_diminished7: [0, 3, 6, 10],
+  sensible7: [0, 3, 6, 10],
   diminished7:      [0, 3, 6, 9],
 };
 
@@ -1842,7 +1847,7 @@ function labelForKey(exercise, key) {
   const lang = document.documentElement.lang || 'en';
   const t = STRINGS[lang] || STRINGS.en;
   if (exercise === 'chord') {
-    return t[`chord${key.charAt(0).toUpperCase() + key.slice(1)}`] || key;
+    return t[CHORD_I18N_KEY[key]] || key;
   }
   if (exercise === 'scale') {
     const i18nKey = SCALE_I18N_KEY[key];

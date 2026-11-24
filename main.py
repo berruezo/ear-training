@@ -16,7 +16,7 @@ from urllib.parse import parse_qs, urlparse
 import fluidsynth
 import numpy as np
 
-VERSION = "0.6.5"
+VERSION = "0.7.0"
 
 SOUNDFONT = "/usr/share/sounds/sf2/TimGM6mb.sf2"
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
@@ -58,7 +58,7 @@ CHORD_TYPES: dict[str, list[int]] = {
     "dominant7":        [0, 4, 7, 10],
     "minor7":           [0, 3, 7, 10],
     "minor_major7":     [0, 3, 7, 11],
-    "half_diminished7": [0, 3, 6, 10],
+    "sensible7": [0, 3, 6, 10],
     "diminished7":      [0, 3, 6, 9],
 }
 
