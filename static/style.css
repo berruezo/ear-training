@@ -656,6 +656,7 @@ main {
   font-size: 0.95rem;
   user-select: none;
 }
+.auto-advance-check span { white-space: nowrap; }
 .auto-advance-input {
   width: 18px;
   height: 18px;
