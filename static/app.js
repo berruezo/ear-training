@@ -114,6 +114,8 @@ const STRINGS = {
     chordDiminished7Intervals: '7̸',
     chordInversions: 'Inversions',
     chordInversionsLabel: 'Include inversions',
+    autoAdvance: 'After a correct answer',
+    autoAdvanceLabel: 'Go to next automatically',
     scaleName: 'Scales',
     scaleDesc: 'Identify the scale being played',
     allowedScales: 'Allowed scales',
@@ -320,6 +322,8 @@ const STRINGS = {
     chordDiminished7Intervals: '7̸',
     chordInversions: 'Inversiones',
     chordInversionsLabel: 'Incluir inversiones',
+    autoAdvance: 'Tras una respuesta correcta',
+    autoAdvanceLabel: 'Pasar al siguiente automáticamente',
     scaleName: 'Escalas',
     scaleDesc: 'Identifica la escala que se está reproduciendo',
     allowedScales: 'Escalas permitidas',
@@ -1339,6 +1343,29 @@ gamePrevBtn.addEventListener('click', () => {
 });
 
 const CORRECT_GUESS_LINGER_MS = 200;
+
+// Auto-advance: when on (default), a correct guess moves straight to the next
+// item. When off, a correct guess reveals the notes and waits for the user to
+// press Next, exactly like a wrong guess. One global flag for all games; it is
+// read at guess time, so changing it mid-game applies to the next guess.
+let autoAdvanceNext = true;
+function syncAutoAdvanceButtons() {
+  document.querySelectorAll('.auto-advance-toggle').forEach(btn => {
+    btn.setAttribute('aria-pressed', autoAdvanceNext ? 'true' : 'false');
+  });
+}
+function setAutoAdvance(on) {
+  autoAdvanceNext = !!on;
+  syncAutoAdvanceButtons();
+}
+document.querySelectorAll('.auto-advance-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    setAutoAdvance(!autoAdvanceNext);
+    scheduleSettingsSave();
+  });
+});
+syncAutoAdvanceButtons();
+
 function handleGuess(answerValue) {
   const g = gameState.groups[gameState.currentIndex];
   if (g.userGuess != null) return;
@@ -1347,6 +1374,7 @@ function handleGuess(answerValue) {
   const wasCorrect = g.userGuess === String(g.correctAnswer);
   if (wasCorrect) {
     gameState.score.correct++;
+    if (!autoAdvanceNext) g.showStaff = true;
   } else {
     gameState.score.wrong++;
     g.showStaff = true;
@@ -1358,7 +1386,7 @@ function handleGuess(answerValue) {
   updateScore();
   updateAllButtons();
 
-  if (wasCorrect) {
+  if (wasCorrect && autoAdvanceNext) {
     gameState.suppressUpdate = true;
     advanceToNextGroup();
     setTimeout(() => {
@@ -2141,6 +2169,7 @@ function gatherSettings() {
   return {
     language: document.documentElement.lang || 'en',
     theme: document.documentElement.getAttribute('data-theme') || 'light',
+    autoAdvance: autoAdvanceNext,
     interval: {
       playMode: document.querySelector('input[name="play-mode"]:checked')?.value || 'free',
       mode: document.querySelector('input[name="mode"]:checked')?.value || 'melodic',
@@ -2169,6 +2198,8 @@ function applySettings(s) {
   if (!s || typeof s !== 'object') return;
   suppressSettingsSave = true;
   try {
+    // Missing key (settings saved before this feature) means the default: on.
+    setAutoAdvance(s.autoAdvance !== false);
     if (s.language && STRINGS[s.language]) {
       const r = document.querySelector(`input[name="lang"][value="${s.language}"]`);
       if (r) r.checked = true;

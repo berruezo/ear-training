@@ -646,6 +646,32 @@ main {
   color: var(--text-muted);
 }
 
+/* Auto-advance toggle (every config view + in-game row). Styled like .chord-toggle. */
+.auto-advance-toggle {
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  min-height: 44px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.06s ease;
+}
+.auto-advance-toggle:hover { background: var(--accent-soft); border-color: var(--border-strong); }
+.auto-advance-toggle:active { transform: translateY(1px); }
+.auto-advance-toggle:focus-visible { outline: none; box-shadow: var(--focus-ring); border-color: var(--accent); }
+.auto-advance-toggle[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.auto-advance-toggle[aria-pressed="false"] { color: var(--text-muted); }
+.auto-advance-row {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0;
+}
+
 /* Allowed-intervals toggles (configuration view) */
 .interval-toggle[aria-pressed="true"] {
   background: var(--accent-soft);

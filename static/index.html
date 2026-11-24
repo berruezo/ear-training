@@ -233,6 +233,13 @@
       </section>
 
       <section class="field">
+        <span class="field-label" data-i18n="autoAdvance">After a correct answer</span>
+        <div class="chord-config-grid">
+          <button type="button" id="interval-auto-advance" class="auto-advance-toggle" aria-pressed="true" data-i18n="autoAdvanceLabel">Go to next automatically</button>
+        </div>
+      </section>
+
+      <section class="field">
         <span class="field-label" data-i18n="playMode">Game mode</span>
         <div class="segmented" role="radiogroup" data-i18n-aria-label="playMode" aria-label="Game mode">
           <label><input type="radio" name="play-mode" value="free" checked><span><svg class="mode-label-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span data-i18n="modeFree">Free</span></span></label>
@@ -299,6 +306,10 @@
         <button type="button" id="game-next" class="nav-btn" data-i18n-aria-label="next" aria-label="Next" disabled>
           <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M16 6h2v12h-2V6zm-2 6L5.5 6v12L14 12z"/></svg>
         </button>
+      </div>
+
+      <div class="auto-advance-row">
+        <button type="button" id="game-auto-advance" class="auto-advance-toggle" aria-pressed="true" data-i18n="autoAdvanceLabel">Go to next automatically</button>
       </div>
 
       <div class="guesses interval-grid" id="interval-answers">
@@ -414,6 +425,13 @@
       </section>
 
       <section class="field">
+        <span class="field-label" data-i18n="autoAdvance">After a correct answer</span>
+        <div class="chord-config-grid">
+          <button type="button" id="chord-auto-advance" class="auto-advance-toggle" aria-pressed="true" data-i18n="autoAdvanceLabel">Go to next automatically</button>
+        </div>
+      </section>
+
+      <section class="field">
         <span class="field-label" data-i18n="playMode">Game mode</span>
         <div class="segmented" role="radiogroup" data-i18n-aria-label="playMode" aria-label="Game mode">
           <label><input type="radio" name="chord-play-mode" value="free" checked><span><svg class="mode-label-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span data-i18n="modeFree">Free</span></span></label>
@@ -478,6 +496,13 @@
           <input type="number" id="scale-tempo-number" min="30" max="400" value="160" inputmode="numeric">
           <button type="button" id="scale-tempo-plus" class="tempo-step" data-i18n-aria-label="increaseTempo" aria-label="Increase tempo by 10">+</button>
           <span class="unit">BPM</span>
+        </div>
+      </section>
+
+      <section class="field">
+        <span class="field-label" data-i18n="autoAdvance">After a correct answer</span>
+        <div class="chord-config-grid">
+          <button type="button" id="scale-auto-advance" class="auto-advance-toggle" aria-pressed="true" data-i18n="autoAdvanceLabel">Go to next automatically</button>
         </div>
       </section>
 
