@@ -1103,7 +1103,20 @@ function spellChordNotes(rootMidi, chordType) {
 
 // Renders notes into `target` (a container element). Chords pass their type so
 // the spelling is stacked thirds; the caller chooses the target.
-function renderStaff(target, notes, mode, chordType) {
+// Picks the clef that needs the fewest ledger lines for these notes.
+// Ties go to treble.
+function pickChordClef(notes) {
+  const ledgers = clef => {
+    const ref = diatonicIndex(clef === 'treble' ? 71 : 50);   // B4 / D3
+    const pos = notes.map(m => diatonicIndex(m) - ref);
+    return Math.max(0, Math.max(...pos) - 4) + Math.max(0, -Math.min(...pos) - 4);
+  };
+  return ledgers('bass') < ledgers('treble') ? 'bass' : 'treble';
+}
+
+// `clefOverride` (optional) forces 'treble' or 'bass'; otherwise the clef is
+// chosen from the average pitch.
+function renderStaff(target, notes, mode, chordType, clefOverride) {
   if (!target || !window.VexFlow || !notes || notes.length < 2) return;
   target.innerHTML = '';
 
@@ -1111,7 +1124,7 @@ function renderStaff(target, notes, mode, chordType) {
   const { Renderer, Stave, StaveNote, Accidental, Formatter } = VF;
 
   const avg = notes.reduce((a, b) => a + b, 0) / notes.length;
-  const clef = avg >= 60 ? 'treble' : 'bass';
+  const clef = clefOverride || (avg >= 60 ? 'treble' : 'bass');
 
   // Figure out how far above/below the staff our notes reach, in staff
   // positions (1 position = line OR space; +4 = top line, -4 = bottom line).
@@ -1212,12 +1225,13 @@ function updateStaff() {
   const g = gameState.groups[gameState.currentIndex];
   if (g.userGuess != null && g.notes && g.showStaff) {
     const mode = g.mode || 'melodic';
-    renderStaff(staffPlayedEl, g.notes, mode, g.chord);
+    renderStaff(staffPlayedEl, g.notes, mode, g.chord,
+      g.chord ? pickChordClef(g.notes) : undefined);
     // Chords also get the same chord spelled from C (root position, C4),
     // placed next to the played one. Other exercises show a single staff.
     const cIntervals = g.chord ? CHORD_INTERVALS[g.chord] : null;
     if (cIntervals) {
-      renderStaff(staffCEl, cIntervals.map(i => 60 + i), mode, g.chord);
+      renderStaff(staffCEl, cIntervals.map(i => 60 + i), mode, g.chord, 'treble');
       staffCEl.hidden = false;
     } else {
       staffCEl.hidden = true;
