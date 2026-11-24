@@ -308,13 +308,6 @@
         </button>
       </div>
 
-      <div class="auto-advance-row">
-        <label class="auto-advance-check">
-          <input type="checkbox" id="game-auto-advance" class="auto-advance-input" checked>
-          <span data-i18n="autoAdvanceLabel">Go to the next question automatically after a correct answer</span>
-        </label>
-      </div>
-
       <div class="guesses interval-grid" id="interval-answers">
         <button type="button" class="guess-btn" data-interval="1"  data-i18n-title="interval1Full"  title="Minor 2nd"><span data-i18n="interval1">m2</span></button>
         <button type="button" class="guess-btn" data-interval="3"  data-i18n-title="interval3Full"  title="Minor 3rd"><span data-i18n="interval3">m3</span></button>
@@ -361,6 +354,13 @@
         <button type="button" class="scale-btn" data-scale="whole_tone"><span data-i18n="scaleWholeTone">Whole tone</span></button>
         <button type="button" class="scale-btn" data-scale="diminished_wh"><span data-i18n="scaleDiminishedWH">Diminished (W-H)</span></button>
         <button type="button" class="scale-btn" data-scale="diminished_hw"><span data-i18n="scaleDiminishedHW">Diminished (H-W)</span></button>
+      </div>
+
+      <div class="auto-advance-row">
+        <label class="auto-advance-check">
+          <input type="checkbox" id="game-auto-advance" class="auto-advance-input" checked>
+          <span data-i18n="autoAdvanceLabel">Advance automatically on a correct answer</span>
+        </label>
       </div>
 
       <div id="staff" class="staff" hidden></div>
