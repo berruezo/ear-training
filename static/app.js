@@ -114,8 +114,7 @@ const STRINGS = {
     chordDiminished7Intervals: '7̸',
     chordInversions: 'Inversions',
     chordInversionsLabel: 'Include inversions',
-    autoAdvance: 'After a correct answer',
-    autoAdvanceLabel: 'Go to next automatically',
+    autoAdvanceLabel: 'Go to the next question automatically after a correct answer',
     scaleName: 'Scales',
     scaleDesc: 'Identify the scale being played',
     allowedScales: 'Allowed scales',
@@ -322,8 +321,7 @@ const STRINGS = {
     chordDiminished7Intervals: '7̸',
     chordInversions: 'Inversiones',
     chordInversionsLabel: 'Incluir inversiones',
-    autoAdvance: 'Tras una respuesta correcta',
-    autoAdvanceLabel: 'Pasar al siguiente automáticamente',
+    autoAdvanceLabel: 'Pasar automáticamente a la siguiente pregunta tras una respuesta correcta',
     scaleName: 'Escalas',
     scaleDesc: 'Identifica la escala que se está reproduciendo',
     allowedScales: 'Escalas permitidas',
@@ -1349,22 +1347,22 @@ const CORRECT_GUESS_LINGER_MS = 200;
 // press Next, exactly like a wrong guess. One global flag for all games; it is
 // read at guess time, so changing it mid-game applies to the next guess.
 let autoAdvanceNext = true;
-function syncAutoAdvanceButtons() {
-  document.querySelectorAll('.auto-advance-toggle').forEach(btn => {
-    btn.setAttribute('aria-pressed', autoAdvanceNext ? 'true' : 'false');
+function syncAutoAdvanceCheckboxes() {
+  document.querySelectorAll('.auto-advance-input').forEach(box => {
+    box.checked = autoAdvanceNext;
   });
 }
 function setAutoAdvance(on) {
   autoAdvanceNext = !!on;
-  syncAutoAdvanceButtons();
+  syncAutoAdvanceCheckboxes();
 }
-document.querySelectorAll('.auto-advance-toggle').forEach(btn => {
-  btn.addEventListener('click', () => {
-    setAutoAdvance(!autoAdvanceNext);
+document.querySelectorAll('.auto-advance-input').forEach(box => {
+  box.addEventListener('change', () => {
+    setAutoAdvance(box.checked);
     scheduleSettingsSave();
   });
 });
-syncAutoAdvanceButtons();
+syncAutoAdvanceCheckboxes();
 
 function handleGuess(answerValue) {
   const g = gameState.groups[gameState.currentIndex];
