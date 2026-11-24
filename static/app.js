@@ -1344,7 +1344,7 @@ const CORRECT_GUESS_LINGER_MS = 200;
 // item. When off, a correct guess reveals the notes and waits for the user to
 // press Next, exactly like a wrong guess. One global flag for all games; it is
 // read at guess time, so changing it mid-game applies to the next guess.
-let autoAdvanceNext = true;
+let autoAdvanceNext = false;
 function syncAutoAdvanceCheckboxes() {
   document.querySelectorAll('.auto-advance-input').forEach(box => {
     box.checked = autoAdvanceNext;
@@ -2186,7 +2186,7 @@ function applySettings(s) {
   suppressSettingsSave = true;
   try {
     // Missing key (settings saved before this feature) means the default: on.
-    setAutoAdvance(s.autoAdvance !== false);
+    setAutoAdvance(s.autoAdvance === true);
     if (s.language && STRINGS[s.language]) {
       const r = document.querySelector(`input[name="lang"][value="${s.language}"]`);
       if (r) r.checked = true;
