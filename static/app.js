@@ -3,6 +3,7 @@ const MAX_TEMPO = 400;
 const TEMPO_STEP = 10;
 
 const LANG_STORAGE_KEY = 'ear-training-lang';
+const SETTINGS_STORAGE_KEY = 'ear-training-settings';
 const STRINGS = {
   en: {
     title: 'Ear Training',
@@ -2257,11 +2258,27 @@ function syncAllModeButtons() {
   syncModeButton('scale-play-mode', 'scale-start');
 }
 
+// Game preferences are always mirrored to localStorage so anonymous visitors
+// keep them across refreshes (same mechanism as the language key). Language and
+// theme are excluded: they have their own keys and URL-param handling.
+function localSettingsSnapshot() {
+  const { language, theme, ...rest } = gatherSettings();
+  return rest;
+}
+
+function applyLocalSettings() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (raw) applySettings(JSON.parse(raw));
+  } catch (e) { /* corrupt or unavailable storage — keep defaults */ }
+}
+
 function scheduleSettingsSave() {
   if (suppressSettingsSave) return;
-  if (!currentUser) return;
   if (settingsSaveTimer) clearTimeout(settingsSaveTimer);
   settingsSaveTimer = setTimeout(async () => {
+    try { localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(localSettingsSnapshot())); } catch (e) {}
+    if (!currentUser) return;
     try {
       await fetch('/api/settings', {
         method: 'PUT',
@@ -2572,6 +2589,9 @@ async function initAuth() {
   updateAuthUI();
 }
 
+// Restore anonymous preferences synchronously; initAuth() then overrides them
+// with server-side settings if the visitor is logged in.
+applyLocalSettings();
 initAuth();
 
 fetch('/api/version').then(r => r.json()).then(j => {
