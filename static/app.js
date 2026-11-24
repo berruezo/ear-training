@@ -1462,7 +1462,6 @@ const hintSongEl       = document.getElementById('hint-song');
 // through /hint (type=chord, simultaneous=1).
 const CHORD_CADENCE_OFFSET = {
   dominant7: 5,
-  sensible7: 1,
   diminished7: 1,
   diminished: 1,
 };
