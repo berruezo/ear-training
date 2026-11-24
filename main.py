@@ -16,7 +16,7 @@ from urllib.parse import parse_qs, urlparse
 import fluidsynth
 import numpy as np
 
-VERSION = "0.5.0"
+VERSION = "0.6.0"
 
 SOUNDFONT = "/usr/share/sounds/sf2/TimGM6mb.sf2"
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
@@ -53,6 +53,13 @@ CHORD_TYPES: dict[str, list[int]] = {
     "minor":      [0, 3, 7],
     "augmented":  [0, 4, 8],
     "diminished": [0, 3, 6],
+    # Four-note (seventh) chords
+    "major7":           [0, 4, 7, 11],
+    "dominant7":        [0, 4, 7, 10],
+    "minor7":           [0, 3, 7, 10],
+    "minor_major7":     [0, 3, 7, 11],
+    "half_diminished7": [0, 3, 6, 10],
+    "diminished7":      [0, 3, 6, 9],
 }
 
 # Ascending semitone offsets from root (including the octave on top).

@@ -96,6 +96,12 @@ const STRINGS = {
     chordMinor: 'Minor',
     chordAugmented: 'Augmented',
     chordDiminished: 'Diminished',
+    chordMajor7: 'Major 7th',
+    chordDominant7: 'Dominant 7th',
+    chordMinor7: 'Minor 7th',
+    chordMinorMajor7: 'Minor-major 7th',
+    chordHalfDiminished7: 'Half-diminished 7th',
+    chordDiminished7: 'Diminished 7th',
     chordInversions: 'Inversions',
     chordInversionsLabel: 'Include inversions',
     scaleName: 'Scales',
@@ -286,6 +292,12 @@ const STRINGS = {
     chordMinor: 'Menor',
     chordAugmented: 'Aumentado',
     chordDiminished: 'Disminuido',
+    chordMajor7: 'Mayor 7ª',
+    chordDominant7: 'Dominante 7ª',
+    chordMinor7: 'Menor 7ª',
+    chordMinorMajor7: 'Menor-mayor 7ª',
+    chordHalfDiminished7: 'Semidisminuido 7ª',
+    chordDiminished7: 'Disminuido 7ª',
     chordInversions: 'Inversiones',
     chordInversionsLabel: 'Incluir inversiones',
     scaleName: 'Escalas',
@@ -664,7 +676,7 @@ function captureAllowedScales() {
   return out.length ? out : SCALE_KEYS.slice();
 }
 
-const CHORD_KEYS = ['major', 'minor', 'augmented', 'diminished'];
+const CHORD_KEYS = ['major', 'minor', 'augmented', 'diminished', 'major7', 'dominant7', 'minor7', 'minor_major7', 'half_diminished7', 'diminished7'];
 
 function captureAllowedChords() {
   const out = [];
@@ -899,9 +911,15 @@ function updateGuessButtons() {
   const lockedByPlayback = gameState.isPlaying && !gameState.guessUnlocked;
 
   if (gameState.exercise === 'chord') {
+    const allowedChords = gameState.allowedChords || [];
     document.querySelectorAll('.chord-btn').forEach(btn => {
       const val = btn.dataset.chord;
-      btn.classList.remove('guess-correct', 'guess-wrong', 'guess-eliminated');
+      btn.classList.remove('guess-correct', 'guess-wrong', 'guess-disabled', 'guess-eliminated');
+      if (!allowedChords.includes(val)) {
+        btn.disabled = true;
+        btn.classList.add('guess-disabled');
+        return;
+      }
       if (guessed) {
         btn.disabled = true;
         if (val === correct) btn.classList.add('guess-correct');
@@ -999,6 +1017,12 @@ const CHORD_INTERVALS = {
   minor:      [0, 3, 7],
   augmented:  [0, 4, 8],
   diminished: [0, 3, 6],
+  major7:           [0, 4, 7, 11],
+  dominant7:        [0, 4, 7, 10],
+  minor7:           [0, 3, 7, 10],
+  minor_major7:     [0, 3, 7, 11],
+  half_diminished7: [0, 3, 6, 10],
+  diminished7:      [0, 3, 6, 9],
 };
 
 // Spell a triad as stacked thirds: root letter, +2 letter steps for the
@@ -1613,7 +1637,7 @@ function intervalShort(cls) {
 
 function answerKeysForExercise() {
   if (gameState.exercise === 'chord') {
-    return ['major', 'minor', 'augmented', 'diminished'];
+    return CHORD_KEYS.slice();
   }
   if (gameState.exercise === 'scale') {
     return SCALE_KEYS.slice();

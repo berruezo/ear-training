@@ -574,12 +574,17 @@ main {
 .chord-btn:hover:not(:disabled) { background: var(--accent-soft); border-color: var(--border-strong); }
 .chord-btn:active:not(:disabled) { transform: translateY(1px); }
 .chord-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); border-color: var(--accent); }
-.chord-btn:disabled:not(.guess-correct):not(.guess-wrong):not(.guess-eliminated) { opacity: 0.4; cursor: not-allowed; }
+.chord-btn:disabled:not(.guess-correct):not(.guess-wrong):not(.guess-disabled):not(.guess-eliminated) { opacity: 0.4; cursor: not-allowed; }
 .chord-btn.guess-correct {
   background: #10b981; color: #ffffff; border-color: #059669; opacity: 1;
 }
 .chord-btn.guess-wrong {
   background: #ef4444; color: #ffffff; border-color: #dc2626; opacity: 1;
+}
+.chord-btn.guess-disabled {
+  opacity: 0.22;
+  text-decoration: line-through;
+  cursor: not-allowed;
 }
 [data-theme="dark"] .chord-btn.guess-correct { background: #059669; border-color: #047857; }
 [data-theme="dark"] .chord-btn.guess-wrong { background: #dc2626; border-color: #b91c1c; }
