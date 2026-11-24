@@ -1435,16 +1435,11 @@ function activeOptionCount() {
 function updateHintState() {
   if (!hintContainerEl) return;
   const g = gameState.groups[gameState.currentIndex];
+  if (!g) return;
   const revealed = g.userGuess != null;
-  // After the answer is revealed, only chords keep the hint container, and only
-  // the arpeggiated replay remains in it.
-  const show = g.playCount >= 2 && (!revealed || gameState.exercise === 'chord');
-  hintContainerEl.hidden = !show;
-  if (!show) {
-    hintMenuEl.hidden = true;
-    hintBtnEl.setAttribute('aria-expanded', 'false');
-    return;
-  }
+  // The hint button is always visible in the game view. Items that need audio
+  // data (notes) are handled by the menu click guard below.
+  hintContainerEl.hidden = false;
   hintSlowEl.hidden = gameState.exercise === 'chord';
   hintArpEl.hidden  = gameState.exercise !== 'chord';
   hintRootEl.hidden = revealed || !(gameState.exercise === 'chord' && gameState.chordInversions);
@@ -1558,6 +1553,20 @@ async function doSongMnemonic() {
 }
 
 hintSlowEl.addEventListener('click', () => doSlowReplay());
+// Hint items that need the group's audio data (notes) can be clicked before the
+// first Play. In that case, start playback to load the group, then let the user
+// pick the hint again.
+hintMenuEl.addEventListener('click', (e) => {
+  if (!e.target.closest('#hint-slow, #hint-arpeggiate, #hint-root, #hint-song')) return;
+  const g = gameState.groups[gameState.currentIndex];
+  if (!g || g.notes) return;
+  e.stopImmediatePropagation();
+  e.preventDefault();
+  hintMenuEl.hidden = true;
+  hintBtnEl.setAttribute('aria-expanded', 'false');
+  playCurrentGroup();
+}, true);
+
 hintArpEl.addEventListener('click', () => doArpeggiate());
 hintRootEl.addEventListener('click', () => doRootPosition());
 hintSongEl.addEventListener('click', () => doSongMnemonic());
