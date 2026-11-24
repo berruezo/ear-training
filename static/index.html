@@ -276,20 +276,12 @@
           <span id="score-wrong" class="score-count">0</span>
         </div>
         <div id="hint-container" class="hint-container" hidden>
-          <button type="button" id="hint-btn" class="hint-btn" aria-haspopup="true" aria-expanded="false">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <line x1="9" y1="18" x2="15" y2="18"/>
-              <line x1="10" y1="22" x2="14" y2="22"/>
-              <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>
-            </svg>
-            <span data-i18n="hint">Hint</span>
-          </button>
-          <div id="hint-menu" class="hint-menu" role="menu" hidden>
-            <button type="button" class="hint-item" id="hint-slow" role="menuitem" data-i18n="hintSlow">Slow replay</button>
-            <button type="button" class="hint-item" id="hint-arpeggiate" role="menuitem" data-i18n="hintArpeggiate">Play arpeggiated</button>
-            <button type="button" class="hint-item" id="hint-root" role="menuitem" data-i18n="hintRootPosition">Root position</button>
-            <button type="button" class="hint-item" id="hint-song" role="menuitem" data-i18n="hintSong">Song mnemonic</button>
-            <button type="button" class="hint-item" id="hint-eliminate" role="menuitem" data-i18n="hintEliminate">Eliminate an option</button>
+          <div class="hint-icons">
+            <button type="button" class="hint-btn" id="hint-slow" data-i18n-title="hintSlow" title="Slow replay" data-i18n-aria-label="hintSlow" aria-label="Slow replay"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12M6 22h12M7 2c0 5 10 5 10 10s-10 5-10 10M17 2c0 5-10 5-10 10s10 5 10 10"/></svg></button>
+            <button type="button" class="hint-btn" id="hint-arpeggiate" data-i18n-title="hintArpeggiate" title="Play arpeggiated" data-i18n-aria-label="hintArpeggiate" aria-label="Play arpeggiated"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="19" x2="20" y2="5" stroke-dasharray="2 3"/><circle cx="5" cy="18" r="2.2" fill="currentColor"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/><circle cx="19" cy="6" r="2.2" fill="currentColor"/></svg></button>
+            <button type="button" class="hint-btn" id="hint-root" data-i18n-title="hintRootPosition" title="Root position" data-i18n-aria-label="hintRootPosition" aria-label="Root position"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg></button>
+            <button type="button" class="hint-btn" id="hint-song" data-i18n-title="hintSong" title="Song mnemonic" data-i18n-aria-label="hintSong" aria-label="Song mnemonic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></button>
+            <button type="button" class="hint-btn" id="hint-eliminate" data-i18n-title="hintEliminate" title="Eliminate an option" data-i18n-aria-label="hintEliminate" aria-label="Eliminate an option"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="8" y1="12" x2="16" y2="12"/></svg></button>
           </div>
           <span id="hint-song-label" class="hint-song-label" hidden></span>
         </div>

@@ -204,7 +204,6 @@ const STRINGS = {
     adminTotalConnections: 'Total connections',
     errAccountLockedTemporary: 'Account locked. Try again after {time}.',
     errAccountLockedPermanent: 'Account permanently locked. Contact an admin to unlock it.',
-    hint: 'Hint',
     hintSlow: 'Slow replay',
     hintArpeggiate: 'Play arpeggiated',
     hintRootPosition: 'Root position',
@@ -411,7 +410,6 @@ const STRINGS = {
     adminTotalConnections: 'Total de conexiones',
     errAccountLockedTemporary: 'Cuenta bloqueada. Inténtalo de nuevo después de {time}.',
     errAccountLockedPermanent: 'Cuenta bloqueada permanentemente. Contacta a un administrador para desbloquearla.',
-    hint: 'Pista',
     hintSlow: 'Reproducción lenta',
     hintArpeggiate: 'Reproducir arpegiado',
     hintRootPosition: 'Posición fundamental',
@@ -1417,8 +1415,6 @@ function stopHintAudio() {
 }
 
 const hintContainerEl  = document.getElementById('hint-container');
-const hintBtnEl        = document.getElementById('hint-btn');
-const hintMenuEl       = document.getElementById('hint-menu');
 const hintSlowEl       = document.getElementById('hint-slow');
 const hintArpEl        = document.getElementById('hint-arpeggiate');
 const hintRootEl       = document.getElementById('hint-root');
@@ -1445,29 +1441,13 @@ function updateHintState() {
   hintRootEl.hidden = revealed || !(gameState.exercise === 'chord' && gameState.chordInversions);
   const ic = parseInt(g.correctAnswer, 10);
   hintSongEl.hidden = revealed || gameState.exercise !== 'interval' || ic === 0 || isNaN(ic);
-  hintElimEl.hidden = revealed;
-  hintElimEl.disabled = (activeOptionCount() - g.eliminated.length) <= 2;
+  // Eliminate stays visible but is disabled once revealed or when only 2 options remain.
+  hintElimEl.disabled = revealed || (activeOptionCount() - g.eliminated.length) <= 2;
 }
-
-hintBtnEl.addEventListener('click', (e) => {
-  e.stopPropagation();
-  const open = !hintMenuEl.hidden;
-  hintMenuEl.hidden = open;
-  hintBtnEl.setAttribute('aria-expanded', String(!open));
-});
-
-document.addEventListener('click', (e) => {
-  if (hintContainerEl && !hintContainerEl.contains(e.target)) {
-    hintMenuEl.hidden = true;
-    if (hintBtnEl) hintBtnEl.setAttribute('aria-expanded', 'false');
-  }
-});
 
 async function playHintAudio(url) {
   stopCurrentAudio();
   stopHintAudio();
-  hintMenuEl.hidden = true;
-  hintBtnEl.setAttribute('aria-expanded', 'false');
   const audio = new Audio(url);
   hintAudio = audio;
   try {
@@ -1531,8 +1511,6 @@ function doEliminate() {
   }
   if (!pool.length) return;
   g.eliminated.push(pool[Math.floor(Math.random() * pool.length)]);
-  hintMenuEl.hidden = true;
-  hintBtnEl.setAttribute('aria-expanded', 'false');
   updateAllButtons();
 }
 
@@ -1553,17 +1531,15 @@ async function doSongMnemonic() {
 }
 
 hintSlowEl.addEventListener('click', () => doSlowReplay());
-// Hint items that need the group's audio data (notes) can be clicked before the
+// Hint buttons that need the group's audio data (notes) can be clicked before the
 // first Play. In that case, start playback to load the group, then let the user
-// pick the hint again.
-hintMenuEl.addEventListener('click', (e) => {
+// press the hint again.
+hintContainerEl.addEventListener('click', (e) => {
   if (!e.target.closest('#hint-slow, #hint-arpeggiate, #hint-root, #hint-song')) return;
   const g = gameState.groups[gameState.currentIndex];
   if (!g || g.notes) return;
   e.stopImmediatePropagation();
   e.preventDefault();
-  hintMenuEl.hidden = true;
-  hintBtnEl.setAttribute('aria-expanded', 'false');
   playCurrentGroup();
 }, true);
 
