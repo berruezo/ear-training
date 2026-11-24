@@ -1435,7 +1435,10 @@ function activeOptionCount() {
 function updateHintState() {
   if (!hintContainerEl) return;
   const g = gameState.groups[gameState.currentIndex];
-  const show = g.playCount >= 2 && g.userGuess == null;
+  const revealed = g.userGuess != null;
+  // After the answer is revealed, only chords keep the hint container, and only
+  // the arpeggiated replay remains in it.
+  const show = g.playCount >= 2 && (!revealed || gameState.exercise === 'chord');
   hintContainerEl.hidden = !show;
   if (!show) {
     hintMenuEl.hidden = true;
@@ -1444,9 +1447,10 @@ function updateHintState() {
   }
   hintSlowEl.hidden = gameState.exercise === 'chord';
   hintArpEl.hidden  = gameState.exercise !== 'chord';
-  hintRootEl.hidden = !(gameState.exercise === 'chord' && gameState.chordInversions);
+  hintRootEl.hidden = revealed || !(gameState.exercise === 'chord' && gameState.chordInversions);
   const ic = parseInt(g.correctAnswer, 10);
-  hintSongEl.hidden = gameState.exercise !== 'interval' || ic === 0 || isNaN(ic);
+  hintSongEl.hidden = revealed || gameState.exercise !== 'interval' || ic === 0 || isNaN(ic);
+  hintElimEl.hidden = revealed;
   hintElimEl.disabled = (activeOptionCount() - g.eliminated.length) <= 2;
 }
 
