@@ -961,12 +961,14 @@ function updateGuessButtons() {
       const val = btn.dataset.chord;
       btn.classList.remove('guess-correct', 'guess-wrong', 'guess-disabled', 'guess-eliminated');
       if (!allowedChords.includes(val)) {
-        btn.disabled = true;
+        // After reveal every chord button stays clickable (audition); before it, disallowed ones are inert.
+        btn.disabled = !guessed;
         btn.classList.add('guess-disabled');
         return;
       }
       if (guessed) {
-        btn.disabled = true;
+        // Stays enabled after reveal: clicking a chord auditions it (see previewChordAfterReveal).
+        btn.disabled = false;
         if (val === correct) btn.classList.add('guess-correct');
         else if (val === g.userGuess) btn.classList.add('guess-wrong');
       } else if (g.eliminated && g.eliminated.includes(val)) {
@@ -1430,8 +1432,30 @@ document.querySelectorAll('.guess-btn').forEach(btn => {
   btn.addEventListener('click', () => handleGuess(btn.dataset.interval));
 });
 document.querySelectorAll('.chord-btn').forEach(btn => {
-  btn.addEventListener('click', () => handleGuess(btn.dataset.chord));
+  btn.addEventListener('click', () => {
+    const g = gameState.groups[gameState.currentIndex];
+    if (g && g.userGuess != null) previewChordAfterReveal(btn.dataset.chord);
+    else handleGuess(btn.dataset.chord);
+  });
 });
+
+// After reveal, a chord button auditions a chord instead of guessing. The correct chord
+// replays the original audio. Any other chord is played in root position, built on the
+// same root (MIDI g.rootNotes[0]) as the correct chord, so only the chord type changes.
+function previewChordAfterReveal(chordType) {
+  const g = gameState.groups[gameState.currentIndex];
+  if (!g) return;
+  if (String(chordType) === String(g.correctAnswer)) {
+    playCurrentGroup();
+    return;
+  }
+  if (!g.rootNotes || !CHORD_INTERVALS[chordType]) return;
+  const root = g.rootNotes[0];
+  const notes = CHORD_INTERVALS[chordType].map(offset => root + offset);
+  fetch(`/hint?${new URLSearchParams({ type: 'chord', notes: notes.join(','), simultaneous: '1' })}`)
+    .then(r => (r.ok ? r.blob() : null))
+    .then(blob => { if (blob) playHintAudio(URL.createObjectURL(blob)); });
+}
 document.querySelectorAll('.scale-btn').forEach(btn => {
   btn.addEventListener('click', () => handleGuess(btn.dataset.scale));
 });
