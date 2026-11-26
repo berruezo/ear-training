@@ -529,7 +529,7 @@ main {
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.06s ease, opacity 0.15s ease;
 }
-.guess-btn:hover:not(:disabled),
+.guess-btn:hover:not(:disabled):not(.guess-correct):not(.guess-wrong),
 .interval-toggle:hover { background: var(--accent-soft); border-color: var(--border-strong); }
 .guess-btn:active:not(:disabled),
 .interval-toggle:active { transform: translateY(1px); }
@@ -602,7 +602,7 @@ main {
   border-top: 1px solid currentColor;
   transform: rotate(-60deg);
 }
-.chord-btn:hover:not(:disabled) { background: var(--accent-soft); border-color: var(--border-strong); }
+.chord-btn:hover:not(:disabled):not(.guess-correct):not(.guess-wrong) { background: var(--accent-soft); border-color: var(--border-strong); }
 .chord-btn:active:not(:disabled) { transform: translateY(1px); }
 .chord-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); border-color: var(--accent); }
 .chord-btn:disabled:not(.guess-correct):not(.guess-wrong):not(.guess-disabled):not(.guess-eliminated) { opacity: 0.4; cursor: not-allowed; }
@@ -708,7 +708,7 @@ main {
   text-align: center;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.06s ease, opacity 0.15s ease;
 }
-.scale-btn:hover:not(:disabled),
+.scale-btn:hover:not(:disabled):not(.guess-correct):not(.guess-wrong),
 .scale-toggle:hover { background: var(--accent-soft); border-color: var(--border-strong); }
 .scale-btn:active:not(:disabled),
 .scale-toggle:active { transform: translateY(1px); }
