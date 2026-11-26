@@ -1082,27 +1082,49 @@ const CHORD_INTERVALS = {
 function spellChordNotes(rootMidi, chordType) {
   const intervals = CHORD_INTERVALS[chordType];
   if (!intervals) return null;
-  const rootSemi = ((rootMidi % 12) + 12) % 12;
-  const rootLetter = LETTER_OF_SEMITONE[rootSemi];
+  const rootLetter = LETTER_OF_SEMITONE[((rootMidi % 12) + 12) % 12];
+  return intervals.map((step, k) =>
+    spellNoteNear(rootMidi + step, (rootLetter + 2 * k) % 7));
+}
 
-  return intervals.map((step, k) => {
-    const targetMidi = rootMidi + step;
-    const targetLetter = (rootLetter + 2 * k) % 7;
-    // Find the octave where this letter's natural MIDI is within ±6 semitones
-    // of the target.
-    let octave = Math.floor(targetMidi / 12) - 1;
-    let naturalMidi = (octave + 1) * 12 + SEMITONE_OF_LETTER[targetLetter];
-    while (naturalMidi - targetMidi > 6) { octave--; naturalMidi -= 12; }
-    while (targetMidi - naturalMidi > 6) { octave++; naturalMidi += 12; }
-    const diff = targetMidi - naturalMidi;  // -2..+2
-    const acc = diff === 0 ? '' : (diff > 0 ? '#'.repeat(diff) : 'b'.repeat(-diff));
-    return {
-      letter: LETTER_NAMES[targetLetter],
-      accidental: acc,
-      octave,
-      key: `${LETTER_NAMES[targetLetter]}${acc}/${octave}`,
-    };
-  });
+// Spell one note: the letter index `letterIdx` (0 = C … 6 = B) with the
+// accidental and octave that put it closest to `targetMidi`.
+function spellNoteNear(targetMidi, letterIdx) {
+  // Find the octave where this letter's natural MIDI is within ±6 semitones
+  // of the target.
+  let octave = Math.floor(targetMidi / 12) - 1;
+  let naturalMidi = (octave + 1) * 12 + SEMITONE_OF_LETTER[letterIdx];
+  while (naturalMidi - targetMidi > 6) { octave--; naturalMidi -= 12; }
+  while (targetMidi - naturalMidi > 6) { octave++; naturalMidi += 12; }
+  const diff = targetMidi - naturalMidi;  // -2..+2
+  const acc = diff === 0 ? '' : (diff > 0 ? '#'.repeat(diff) : 'b'.repeat(-diff));
+  return {
+    midi: targetMidi,
+    letter: LETTER_NAMES[letterIdx],
+    accidental: acc,
+    octave,
+    key: `${LETTER_NAMES[letterIdx]}${acc}/${octave}`,
+  };
+}
+
+// Spell the chord exactly as it sounded: the spelling root is `rootMidi` (the
+// root-position bottom note, true under any inversion), and each chord tone is
+// placed at the sounded MIDI note with the same pitch class, so an inversion
+// shows its real voicing (e.g. C-E-G sounded as E-G-C). Returns notes sorted
+// by pitch, or null if a chord tone is missing from `sounded`.
+function spellChordAsPlayed(rootMidi, chordType, sounded) {
+  const intervals = CHORD_INTERVALS[chordType];
+  if (!intervals) return null;
+  const rootLetter = LETTER_OF_SEMITONE[((rootMidi % 12) + 12) % 12];
+  const pc = n => ((n % 12) + 12) % 12;
+  const result = [];
+  for (let k = 0; k < intervals.length; k++) {
+    const tonePc = pc(rootMidi + intervals[k]);
+    const m = sounded.find(n => pc(n) === tonePc);
+    if (m === undefined) return null;
+    result.push(spellNoteNear(m, (rootLetter + 2 * k) % 7));
+  }
+  return result.sort((a, b) => a.midi - b.midi);
 }
 
 // Renders notes into `target` (a container element). Chords pass their type so
@@ -1119,8 +1141,9 @@ function pickChordClef(notes) {
 }
 
 // `clefOverride` (optional) forces 'treble' or 'bass'; otherwise the clef is
-// chosen from the average pitch.
-function renderStaff(target, notes, mode, chordType, clefOverride) {
+// chosen from the average pitch. `rootMidi` (optional, chords only) is the
+// root-position bottom note, so an inverted chord is drawn as played.
+function renderStaff(target, notes, mode, chordType, clefOverride, rootMidi) {
   if (!target || !window.VexFlow || !notes || notes.length < 2) return;
   target.innerHTML = '';
 
@@ -1193,11 +1216,14 @@ function renderStaff(target, notes, mode, chordType, clefOverride) {
   let staveNotes;
   if (isChord) {
     const sortedNotes = notes.slice().sort((a, b) => a - b);
-    // Prefer proper triad spelling (stacked thirds) when we know the chord
-    // type; fall back to sharps-only spelling for everything else.
-    const spelling = chordType
-      ? spellChordNotes(sortedNotes[0], chordType)
-      : null;
+    // Prefer proper chord spelling (stacked thirds) when we know the chord
+    // type. With `rootMidi` the notes are spelled as played (inversions keep
+    // their sounded voicing); without it the chord is spelled in root position
+    // above its lowest note. Otherwise fall back to sharps-only spelling.
+    const spelling = !chordType ? null
+      : rootMidi != null
+        ? spellChordAsPlayed(rootMidi, chordType, sortedNotes)
+        : spellChordNotes(sortedNotes[0], chordType);
     let keys, accidentals;
     if (spelling) {
       keys = spelling.map(n => n.key);
@@ -1230,7 +1256,8 @@ function updateStaff() {
   if (g.userGuess != null && g.notes && g.showStaff) {
     const mode = g.mode || 'melodic';
     renderStaff(staffPlayedEl, g.notes, mode, g.chord,
-      g.chord ? pickChordClef(g.notes) : undefined);
+      g.chord ? pickChordClef(g.notes) : undefined,
+      g.chord && g.rootNotes ? g.rootNotes[0] : undefined);
     // Chords also get the same chord spelled from C (root position, C4),
     // placed next to the played one. Other exercises show a single staff.
     const cIntervals = g.chord ? CHORD_INTERVALS[g.chord] : null;
